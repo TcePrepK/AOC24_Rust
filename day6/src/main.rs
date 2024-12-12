@@ -108,49 +108,72 @@ fn second_part(input: &str) -> i32 {
     let height: usize = main_grid.len();
     let width: usize = main_grid[0].len();
 
+    // Run the guard once and store the path.
+    let mut grid = main_grid.clone();
+    let mut guard = main_guard.clone();
+
+    let mut wall_poses: Vec<(usize, usize)> = vec![];
+    let mut direction: DIRECTION = DIRECTION::UP;
+    loop {
+        let (fx, fy) = guard;
+        let (dx, dy) = dir_to_vec(&direction);
+
+        let (nx, ny) = ((fx as i32 + dx) as usize, ((fy as i32) + dy) as usize);
+        if nx >= width || ny >= height {
+            break;
+        }
+
+        match grid[ny][nx] {
+            '#' => {
+                direction = rot_dir(&direction);
+                guard = (fx, fy);
+            },
+            '.' => {
+                guard = (nx, ny);
+                if !wall_poses.contains(&guard.clone()) { wall_poses.push(guard.clone()); }
+            }
+            _ => {
+                guard = (nx, ny);
+            }
+        }
+    }
+
     let mut loops: i32 = 0;
-    for i in 1..height {
-        for j in 1..width {
-            if main_grid[i][j] != '.' { continue; }
+    for (wall_x, wall_y) in wall_poses.iter() {
+        grid = main_grid.clone();
+        guard = main_guard.clone();
 
-            // Loop through all tiles and check if they are empty or not.
-            // If they are empty, assume there is a 'O' and run the algorithm again.
+        grid[*wall_y][*wall_x] = '#';
 
-            let mut grid = main_grid.clone();
-            let mut guard = main_guard.clone();
-            grid[i][j] = '#';
+        let mut pos_directory: HashSet<String> = HashSet::new();
+        let mut direction: DIRECTION = DIRECTION::UP;
 
-            let mut pos_directory: HashSet<String> = HashSet::new();
-            let mut direction: DIRECTION = DIRECTION::UP;
+        loop {
+            let (fx, fy) = guard;
+            let (dx, dy) = dir_to_vec(&direction);
 
-            loop {
-                let (fx, fy) = guard;
-                let (dx, dy) = dir_to_vec(&direction);
-
-                let id = format!("{:?}, {:?}, {:?})", fx, fy, direction);
-                if pos_directory.contains(&id) {
-                    loops += 1;
-                    break;
-                }
-
-                pos_directory.insert(id);
-
-                let (nx, ny) = ((fx as i32 + dx) as usize, ((fy as i32) + dy) as usize);
-                if nx >= width || ny >= height {
-                    break;
-                }
-
-                match grid[ny][nx] {
-                    '#' => {
-                        direction = rot_dir(&direction);
-                        guard = (fx, fy);
-                    },
-                    _ => {
-                        guard = (nx, ny);
-                    }
-                }
+            let id = format!("{:?}, {:?}, {:?})", fx, fy, direction);
+            if pos_directory.contains(&id) {
+                loops += 1;
+                break;
             }
 
+            pos_directory.insert(id);
+
+            let (nx, ny) = ((fx as i32 + dx) as usize, ((fy as i32) + dy) as usize);
+            if nx >= width || ny >= height {
+                break;
+            }
+
+            match grid[ny][nx] {
+                '#' => {
+                    direction = rot_dir(&direction);
+                    guard = (fx, fy);
+                },
+                _ => {
+                    guard = (nx, ny);
+                }
+            }
         }
     }
 
