@@ -4,36 +4,65 @@ fn read_file(path: &str) -> String {
     fs::read_to_string(path).expect("Could not read file")
 }
 
-#[allow(unused_variables)]
-fn main() {
-    let example = read_file("src/example");
-    let input = read_file("src/input");
-    let used_string = input;
+const ANSWER_ONE: i32 = 143;
+const ANSWER_TWO: i32 = 123;
 
-    println!("First Part: {:?}", first_part(&used_string));
-    println!("Second Part: {:?}", second_part(&used_string));
+fn test_examples() -> [bool; 2] {
+    let example = read_file("src/example");
+
+    let results = [first_part(&example), second_part(&example)];
+
+    if results[0] > 0 && results[0] != ANSWER_ONE {
+        println!("Part One Wrong");
+    }
+
+    if results[1] > 0 && results[1] != ANSWER_TWO {
+        println!("Part Two Wrong");
+    }
+
+    [results[0] == ANSWER_ONE, results[1] == ANSWER_TWO]
 }
+
+fn test_inputs(example_solutions: [bool; 2]) {
+    let input = read_file("src/input");
+
+    if example_solutions[0] {
+        println!("Part One: {:?}", first_part(&input));
+    }
+    if example_solutions[1] {
+        println!("Part Two: {:?}", second_part(&input));
+    }
+}
+
+fn main() {
+    let example_solutions = test_examples();
+    test_inputs(example_solutions);
+}
+
+/* ------------------- Helpers ------------------- */
+
+/* ------------------- Solutions ------------------- */
 
 fn first_part(input: &str) -> i32 {
     let data = input.split("\n\n").collect::<Vec<&str>>();
 
     // Just splitting and mapping to get the proper vectors.
-    let rules =
-        data[0].split("\n")
-            .map(
-                |line| line.split("|")
-                    .map(|s| s.parse::<i32>().unwrap())
-                    .collect::<Vec<i32>>()
-            )
-            .map(|lines| [lines[0], lines[1]])
+    let rules = data[0]
+        .split("\n")
+        .map(|line| {
+            line.split("|")
+                .map(|s| s.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>()
+        })
+        .map(|lines| [lines[0], lines[1]])
         .collect::<Vec<[i32; 2]>>();
-    let mut lines =
-        data[1].split("\n")
-            .map(
-                |line| line.split(",")
-                    .map(|s| s.parse::<i32>().unwrap())
-                    .collect::<Vec<i32>>()
-            )
+    let mut lines = data[1]
+        .split("\n")
+        .map(|line| {
+            line.split(",")
+                .map(|s| s.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>()
+        })
         .collect::<Vec<Vec<i32>>>();
 
     // For each line, check every rule
@@ -76,7 +105,9 @@ fn first_part(input: &str) -> i32 {
             }
         }
 
-        if correct_line { result += line[line.len() / 2]; }
+        if correct_line {
+            result += line[line.len() / 2];
+        }
     }
 
     result
@@ -86,23 +117,23 @@ fn second_part(input: &str) -> i32 {
     let data = input.split("\n\n").collect::<Vec<&str>>();
 
     // Just splitting and mapping to get the proper vectors.
-    let rules =
-        data[0].split("\n")
-            .map(
-                |line| line.split("|")
-                    .map(|s| s.parse::<i32>().unwrap())
-                    .collect::<Vec<i32>>()
-            )
-            .map(|lines| [lines[0], lines[1]])
-            .collect::<Vec<[i32; 2]>>();
-    let mut lines =
-        data[1].split("\n")
-            .map(
-                |line| line.split(",")
-                    .map(|s| s.parse::<i32>().unwrap())
-                    .collect::<Vec<i32>>()
-            )
-            .collect::<Vec<Vec<i32>>>();
+    let rules = data[0]
+        .split("\n")
+        .map(|line| {
+            line.split("|")
+                .map(|s| s.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>()
+        })
+        .map(|lines| [lines[0], lines[1]])
+        .collect::<Vec<[i32; 2]>>();
+    let mut lines = data[1]
+        .split("\n")
+        .map(|line| {
+            line.split(",")
+                .map(|s| s.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>()
+        })
+        .collect::<Vec<Vec<i32>>>();
 
     // For each line, check every rule
     let mut result: i32 = 0;
@@ -165,7 +196,9 @@ fn second_part(input: &str) -> i32 {
             }
         }
 
-        if edited_once { result += line[line.len() / 2]; }
+        if edited_once {
+            result += line[line.len() / 2];
+        }
     }
 
     result
