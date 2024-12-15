@@ -1,9 +1,46 @@
-use std::collections::{HashSet};
+use std::collections::HashSet;
 use std::fs;
 
 fn read_file(path: &str) -> String {
     fs::read_to_string(path).expect("Could not read file")
 }
+
+const ANSWER_ONE: i32 = 41;
+const ANSWER_TWO: i32 = 6;
+
+fn test_examples() -> [bool; 2] {
+    let example = read_file("src/example");
+
+    let results = [first_part(&example), second_part(&example)];
+
+    if results[0] > 0 && results[0] != ANSWER_ONE {
+        println!("Part One Wrong");
+    }
+
+    if results[1] > 0 && results[1] != ANSWER_TWO {
+        println!("Part Two Wrong");
+    }
+
+    [results[0] == ANSWER_ONE, results[1] == ANSWER_TWO]
+}
+
+fn test_inputs(example_solutions: [bool; 2]) {
+    let input = read_file("src/input");
+
+    if example_solutions[0] {
+        println!("Part One: {:?}", first_part(&input));
+    }
+    if example_solutions[1] {
+        println!("Part Two: {:?}", second_part(&input));
+    }
+}
+
+fn main() {
+    let example_solutions = test_examples();
+    test_inputs(example_solutions);
+}
+
+/* ------------------- Helpers ------------------- */
 
 #[derive(Debug)]
 enum DIRECTION {
@@ -31,15 +68,7 @@ fn rot_dir(dir: &DIRECTION) -> DIRECTION {
     }
 }
 
-#[allow(unused_variables)]
-fn main() {
-    let example = read_file("src/example");
-    let input = read_file("src/input");
-    let used_string = input;
-
-    println!("First Part: {:?}", first_part(&used_string));
-    println!("Second Part: {:?}", second_part(&used_string));
-}
+/* ------------------- Solutions ------------------- */
 
 #[allow(unused_variables)]
 fn first_part(input: &str) -> i32 {
@@ -66,7 +95,9 @@ fn first_part(input: &str) -> i32 {
     loop {
         let (fx, fy) = guard;
 
-        if grid[fy][fx] != 'x' { total += 1; }
+        if grid[fy][fx] != 'x' {
+            total += 1;
+        }
         grid[fy][fx] = 'x';
 
         let (dx, dy) = direction;
@@ -79,7 +110,7 @@ fn first_part(input: &str) -> i32 {
             '#' => {
                 direction = (-dy, dx);
                 guard = (fx, fy);
-            },
+            }
             _ => {
                 guard = (nx, ny);
             }
@@ -127,10 +158,12 @@ fn second_part(input: &str) -> i32 {
             '#' => {
                 direction = rot_dir(&direction);
                 guard = (fx, fy);
-            },
+            }
             '.' => {
                 guard = (nx, ny);
-                if !wall_poses.contains(&guard.clone()) { wall_poses.push(guard.clone()); }
+                if !wall_poses.contains(&guard.clone()) {
+                    wall_poses.push(guard.clone());
+                }
             }
             _ => {
                 guard = (nx, ny);
@@ -169,7 +202,7 @@ fn second_part(input: &str) -> i32 {
                 '#' => {
                     direction = rot_dir(&direction);
                     guard = (fx, fy);
-                },
+                }
                 _ => {
                     guard = (nx, ny);
                 }
