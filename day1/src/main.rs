@@ -5,22 +5,53 @@ fn read_file(path: &str) -> String {
     fs::read_to_string(path).expect("Could not read file")
 }
 
-#[allow(unused_variables)]
-fn main() {
-    let example = read_file("src/example");
-    let input = read_file("src/input");
-    let used_string = input;
+const ANSWER_ONE: i32 = 11;
+const ANSWER_TWO: i32 = 31;
 
-    println!("First Part: {:?}", first_part(used_string.clone()));
-    println!("Second Part: {:?}", second_part(used_string.clone()));
+fn test_examples() -> [bool; 2] {
+    let example = read_file("src/example");
+
+    let results = [first_part(&example), second_part(&example)];
+
+    if results[0] > 0 && results[0] != ANSWER_ONE {
+        println!("Part One Wrong");
+    }
+
+    if results[1] > 0 && results[1] != ANSWER_TWO {
+        println!("Part Two Wrong");
+    }
+
+    [results[0] == ANSWER_ONE, results[1] == ANSWER_TWO]
 }
 
-fn first_part(input: String) -> i32 {
+fn test_inputs(example_solutions: [bool; 2]) {
+    let input = read_file("src/input");
+
+    if example_solutions[0] {
+        println!("Part One: {:?}", first_part(&input));
+    }
+    if example_solutions[1] {
+        println!("Part Two: {:?}", second_part(&input));
+    }
+}
+
+fn main() {
+    let example_solutions = test_examples();
+    test_inputs(example_solutions);
+}
+
+/* ------------------- Helpers ------------------- */
+
+/* ------------------- Solutions ------------------- */
+
+fn first_part(input: &str) -> i32 {
     let mut first_col: Vec<i32> = Vec::new();
     let mut second_col: Vec<i32> = Vec::new();
 
     for line in input.lines() {
-        let mut split = line.split_whitespace().map(|num| num.parse::<i32>().unwrap());
+        let mut split = line
+            .split_whitespace()
+            .map(|num| num.parse::<i32>().unwrap());
         first_col.push(split.next().unwrap());
         second_col.push(split.next().unwrap());
     }
@@ -36,12 +67,14 @@ fn first_part(input: String) -> i32 {
     diff
 }
 
-fn second_part(input: String) -> i32 {
+fn second_part(input: &str) -> i32 {
     let mut first_col: Vec<i32> = Vec::new();
     let mut hash_map: HashMap<i32, i32> = HashMap::new();
 
     for line in input.lines() {
-        let mut split = line.split_whitespace().map(|num| num.parse::<i32>().unwrap());
+        let mut split = line
+            .split_whitespace()
+            .map(|num| num.parse::<i32>().unwrap());
         let left = split.next().unwrap();
         let right = split.next().unwrap();
 
@@ -51,7 +84,9 @@ fn second_part(input: String) -> i32 {
 
     let mut result: i32 = 0;
     for entry in first_col {
-        if !hash_map.contains_key(&entry) { continue; };
+        if !hash_map.contains_key(&entry) {
+            continue;
+        };
         result += entry * hash_map[&entry];
     }
 
