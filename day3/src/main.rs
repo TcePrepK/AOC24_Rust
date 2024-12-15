@@ -1,51 +1,87 @@
-use std::fs;
 use regex::Regex;
+use std::fs;
 
 fn read_file(path: &str) -> String {
     fs::read_to_string(path).expect("Could not read file")
 }
 
-#[allow(unused_variables)]
-fn main() {
-    let example = read_file("src/example");
-    let input = read_file("src/input");
-    let used_string = input;
+const ANSWER_ONE: i32 = 161;
+const ANSWER_TWO: i32 = 48;
 
-    println!("First Part: {:?}", first_part(used_string.clone()));
-    println!("Second Part: {:?}", second_part(used_string.clone()));
+fn test_examples() -> [bool; 2] {
+    let example = read_file("src/example");
+
+    let results = [first_part(&example), second_part(&example)];
+
+    if results[0] > 0 && results[0] != ANSWER_ONE {
+        println!("Part One Wrong");
+    }
+
+    if results[1] > 0 && results[1] != ANSWER_TWO {
+        println!("Part Two Wrong");
+    }
+
+    [results[0] == ANSWER_ONE, results[1] == ANSWER_TWO]
 }
 
-fn first_part(input: String) -> i32 {
+fn test_inputs(example_solutions: [bool; 2]) {
+    let input = read_file("src/input");
+
+    if example_solutions[0] {
+        println!("Part One: {:?}", first_part(&input));
+    }
+    if example_solutions[1] {
+        println!("Part Two: {:?}", second_part(&input));
+    }
+}
+
+fn main() {
+    let example_solutions = test_examples();
+    test_inputs(example_solutions);
+}
+
+/* ------------------- Helpers ------------------- */
+
+/* ------------------- Solutions ------------------- */
+
+fn first_part(input: &str) -> i32 {
     let regex = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
-    let nums = regex.captures_iter(&input)
+    let nums = regex
+        .captures_iter(&input)
         .map(|cap| {
-            vec![cap[1].parse::<i32>().unwrap(), cap[2].parse::<i32>().unwrap()]
+            vec![
+                cap[1].parse::<i32>().unwrap(),
+                cap[2].parse::<i32>().unwrap(),
+            ]
         })
         .collect::<Vec<Vec<i32>>>();
 
     nums.iter().map(|nums| nums[0] * nums[1]).sum()
 }
 
-fn second_part(input: String) -> i32 {
+fn second_part(input: &str) -> i32 {
     let mul_regex = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
     let do_regex = Regex::new(r"do\(\)").unwrap();
     let dont_regex = Regex::new(r"don't\(\)").unwrap();
 
     let mut enabled_mules: Vec<String> = Vec::new();
 
-    let mut construct = input.clone();
+    let mut construct = String::from(input);
     let mut doing = true;
     let mut finished = false;
     while !finished {
-        let mul_opt = mul_regex.find(&construct)
+        let mul_opt = mul_regex
+            .find(&construct)
             .map(|mat| (mat.start(), mat.end(), mat.as_str().to_string()));
         let do_opt = if !doing {
-            do_regex.find(&construct)
+            do_regex
+                .find(&construct)
                 .map(|mat| (mat.start(), mat.end()))
         } else {
             None
         };
-        let dont_opt = dont_regex.find(&construct)
+        let dont_opt = dont_regex
+            .find(&construct)
             .map(|mat| (mat.start(), mat.end()));
 
         if mul_opt.is_none() || (!doing && do_opt.is_none()) {
