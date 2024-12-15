@@ -4,15 +4,44 @@ fn read_file(path: &str) -> String {
     fs::read_to_string(path).expect("Could not read file")
 }
 
-#[allow(unused_variables)]
-fn main() {
-    let example = read_file("src/example");
-    let input = read_file("src/input");
-    let used_string = input;
+const ANSWER_ONE: i64 = 3749;
+const ANSWER_TWO: i64 = 11387;
 
-    println!("First Part: {:?}", first_part(&used_string));
-    println!("Second Part: {:?}", second_part(&used_string));
+fn test_examples() -> [bool; 2] {
+    let example = read_file("src/example");
+
+    let results = [first_part(&example), second_part(&example)];
+
+    if results[0] > 0 && results[0] != ANSWER_ONE {
+        println!("Part One Wrong");
+    }
+
+    if results[1] > 0 && results[1] != ANSWER_TWO {
+        println!("Part Two Wrong");
+    }
+
+    [results[0] == ANSWER_ONE, results[1] == ANSWER_TWO]
 }
+
+fn test_inputs(example_solutions: [bool; 2]) {
+    let input = read_file("src/input");
+
+    if example_solutions[0] {
+        println!("Part One: {:?}", first_part(&input));
+    }
+    if example_solutions[1] {
+        println!("Part Two: {:?}", second_part(&input));
+    }
+}
+
+fn main() {
+    let example_solutions = test_examples();
+    test_inputs(example_solutions);
+}
+
+/* ------------------- Helpers ------------------- */
+
+/* ------------------- Solutions ------------------- */
 
 #[allow(unused_variables)]
 fn first_part(input: &str) -> i64 {
@@ -23,7 +52,10 @@ fn first_part(input: &str) -> i64 {
         let data: Vec<&str> = equation.split(": ").collect::<Vec<&str>>();
 
         let answer: i64 = data[0].parse::<i64>().unwrap();
-        let numbers: Vec<i64> = data[1].split(" ").map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>();
+        let numbers: Vec<i64> = data[1]
+            .split(" ")
+            .map(|s| s.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>();
 
         let mut num_checks: Vec<i64> = vec![];
         num_checks.push(answer);
@@ -61,7 +93,10 @@ fn second_part(input: &str) -> i64 {
         let data: Vec<&str> = equation.split(": ").collect::<Vec<&str>>();
 
         let answer: i64 = data[0].parse::<i64>().unwrap();
-        let numbers: Vec<i64> = data[1].split(" ").map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>();
+        let numbers: Vec<i64> = data[1]
+            .split(" ")
+            .map(|s| s.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>();
 
         let mut num_checks: Vec<i64> = vec![];
         num_checks.push(answer);
@@ -87,7 +122,9 @@ fn second_part(input: &str) -> i64 {
                 }
 
                 let sum_result = check_num - operation_num;
-                if sum_result < 0 { continue; }
+                if sum_result < 0 {
+                    continue;
+                }
                 next_checks.push(check_num - operation_num);
             }
 
