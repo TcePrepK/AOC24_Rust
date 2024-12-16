@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::fs;
 
 fn read_file(path: &str) -> String {
@@ -128,7 +127,7 @@ fn first_part(input: &str) -> i32 {
 
 #[allow(unused_variables)]
 fn second_part(input: &str) -> i32 {
-    let mut main_grid: Vec<Vec<char>> = vec![];
+    let mut grid: Vec<Vec<char>> = vec![];
     let mut main_guard: (usize, usize) = (0, 0);
 
     for (y, line) in input.lines().enumerate() {
@@ -140,13 +139,12 @@ fn second_part(input: &str) -> i32 {
                 main_guard = (x, y);
             }
         }
-        main_grid.push(subgrid);
+        grid.push(subgrid);
     }
-    let height: usize = main_grid.len();
-    let width: usize = main_grid[0].len();
+    let height: usize = grid.len();
+    let width: usize = grid[0].len();
 
     // Run the guard once and store the path.
-    let mut grid = main_grid.clone();
     let mut guard = main_guard.clone();
 
     let mut wall_poses: Vec<(usize, usize)> = vec![];
@@ -179,25 +177,22 @@ fn second_part(input: &str) -> i32 {
 
     let mut loops: i32 = 0;
     for (wall_x, wall_y) in wall_poses.iter() {
-        grid = main_grid.clone();
+        grid[*wall_y][*wall_x] = '#';
         guard = main_guard.clone();
 
-        grid[*wall_y][*wall_x] = '#';
-
-        let mut pos_directory: HashSet<String> = HashSet::new();
+        let mut visited: Vec<Vec<i8>> = vec![vec![0; width]; height];
         let mut direction: DIRECTION = DIRECTION::UP;
 
         loop {
             let (fx, fy) = guard;
             let (dx, dy) = dir_to_vec(&direction);
 
-            let id = format!("{:?}, {:?}, {:?})", fx, fy, direction);
-            if pos_directory.contains(&id) {
+            if visited[fy][fx] > 2 {
                 loops += 1;
                 break;
             }
 
-            pos_directory.insert(id);
+            visited[fy][fx] += 1;
 
             let (nx, ny) = ((fx as i32 + dx) as usize, ((fy as i32) + dy) as usize);
             if nx >= width || ny >= height {
@@ -214,6 +209,8 @@ fn second_part(input: &str) -> i32 {
                 }
             }
         }
+
+        grid[*wall_y][*wall_x] = '.';
     }
 
     loops

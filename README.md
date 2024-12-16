@@ -15,7 +15,7 @@ Each day has a folder with the solutions for that day.
 | [Day 3](./day3/src/main.rs)   | 776.282µs | 12.412ms  |
 | [Day 4](./day4/src/main.rs)   | 756.34µs  | 334.577µs |
 | [Day 5](./day5/src/main.rs)   | 9.907ms   | 9.907ms   |
-| [Day 6](./day6/src/main.rs)   | 237.041µs | 2.440s    |
+| [Day 6](./day6/src/main.rs)   | 237.041µs | 106.399ms |
 | [Day 7](./day7/src/main.rs)   | 3.483ms   | 13.849ms  |
 | [Day 8](./day8/src/main.rs)   | 168.011µs | 262.708µs |
 | [Day 9](./day9/src/main.rs)   | 1.772ms   | 30.826ms  |
