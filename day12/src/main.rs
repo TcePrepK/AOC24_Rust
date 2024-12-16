@@ -27,10 +27,16 @@ fn test_inputs(example_solutions: [bool; 2]) {
     let input = read_file("src/input");
 
     if example_solutions[0] {
-        println!("Part One: {:?}", first_part(&input));
+        let start_time = std::time::Instant::now();
+        let result = first_part(&input);
+        let total_time = start_time.elapsed();
+        println!("Part 1 result: {}, took: {:?}", result, total_time);
     }
     if example_solutions[1] {
-        println!("Part Two: {:?}", second_part(&input));
+        let start_time = std::time::Instant::now();
+        let result = second_part(&input);
+        let total_time = start_time.elapsed();
+        println!("Part 2 result: {}, took: {:?}", result, total_time);
     }
 }
 
@@ -98,23 +104,6 @@ fn get_side(
     }
 
     Some((x as usize, y as usize, grid[y as usize][x as usize]))
-}
-
-fn find_neighbors(x: usize, y: usize, w: usize, h: usize) -> Vec<(usize, usize)> {
-    let mut neighbors: Vec<(usize, usize)> = vec![];
-
-    for a in 0..=1 {
-        for b in 0..=1 {
-            let nx: i32 = x as i32 + (1 - 2 * a) * b;
-            let ny: i32 = y as i32 + (1 - 2 * a) * (1 - b);
-
-            if nx >= 0 && nx < w as i32 && ny >= 0 && ny < h as i32 {
-                neighbors.push((nx as usize, ny as usize));
-            }
-        }
-    }
-
-    neighbors
 }
 
 /* ------------------- Solutions ------------------- */

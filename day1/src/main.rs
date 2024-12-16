@@ -28,10 +28,16 @@ fn test_inputs(example_solutions: [bool; 2]) {
     let input = read_file("src/input");
 
     if example_solutions[0] {
-        println!("Part One: {:?}", first_part(&input));
+        let start_time = std::time::Instant::now();
+        let result = first_part(&input);
+        let total_time = start_time.elapsed();
+        println!("Part 1 result: {}, took: {:?}", result, total_time);
     }
     if example_solutions[1] {
-        println!("Part Two: {:?}", second_part(&input));
+        let start_time = std::time::Instant::now();
+        let result = second_part(&input);
+        let total_time = start_time.elapsed();
+        println!("Part 2 result: {}, took: {:?}", result, total_time);
     }
 }
 
