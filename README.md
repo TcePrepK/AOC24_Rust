@@ -30,7 +30,7 @@ Benchmarked on a Victus with 20 × 12th Gen Intel® Core™ i7-12700H and 32 GB 
 | [Day 13](./day13/src/main.rs) | 466.099µs | 427.463µs |
 | [Day 14](./day14/src/main.rs) | 174.354µs |    ---    |
 | [Day 15](./day15/src/main.rs) | 358.548µs | 503.136µs |
-| [Day 16](./day16/src/main.rs) | 176.638ms | 225.056ms |
+| [Day 16](./day16/src/main.rs) | 122.736ms | 104.194ms |
 
 ## License
 
