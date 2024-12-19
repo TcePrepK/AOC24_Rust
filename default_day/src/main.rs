@@ -29,7 +29,7 @@ fn test_examples() -> (bool, bool) {
         println!("Part One Wrong");
     }
 
-    if results.1 != 0 && results.1 != ANSWER_ONE {
+    if results.1 != 0 && results.1 != ANSWER_TWO {
         println!("Part Two Wrong");
     }
 
