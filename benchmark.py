@@ -1,4 +1,5 @@
-import concurrent
+import bisect
+import concurrent.futures
 import os
 import re
 import subprocess
@@ -101,8 +102,8 @@ def process_day(day, iterations):
     for _ in range(iterations):
         p1_time, p2_time = run_rust_binary(day)
         if p1_time is not None and p2_time is not None:
-            part1_times.append(p1_time)
-            part2_times.append(p2_time)
+            bisect.insort(part1_times, p1_time)
+            bisect.insort(part2_times, p2_time)
 
     # Remove outliers (twice)
     part1_times_clean = remove_outliers(part1_times)
