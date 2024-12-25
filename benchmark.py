@@ -94,6 +94,7 @@ def remove_outliers(data):
     return [x for x in data if lower_bound <= x <= upper_bound]
 
 
+# Function to process a day's benchmarking results
 def process_day(day, iterations):
     part1_times = []
     part2_times = []
@@ -141,7 +142,7 @@ def main(iterations=100):
                 print(f"Day {day} processing failed: {exc}")
 
     # Plot results
-    fig, axes = plt.subplots(2, days, figsize=(days * 2, 10), sharey=False)
+    fig, axes = plt.subplots(2, days, figsize=(days * 1.2, 5), sharey=False)
     for i, day in enumerate(sorted(results.keys())):
         part1_clean, part2_clean = results[day]
 
@@ -165,7 +166,7 @@ def main(iterations=100):
             whiskerprops=dict(color="blue"),
             capprops=dict(color="blue"),
         )
-        ax1.set_title(f"Day {day} ({time_unit})")
+        ax1.set_title(f"Day {day} ({time_unit})", fontsize=10)
         ax1.set_xticks([])
 
         # Plot Part 2
@@ -181,13 +182,20 @@ def main(iterations=100):
         ax2.set_xticks([])
 
     # General title and finishing touches
-    fig.suptitle("Execution Times Across Days (Part 1 and Part 2)", fontsize=24, fontweight="bold")
+    fig.suptitle("Execution Times Across Days (Part 1 and Part 2)", fontsize=18, fontweight="bold")
     plt.tight_layout()
     plt.savefig("ExecutionTimes.png")
     print("Plots saved as 'ExecutionTimes.png'.")
 
+    # Run each day once again to get total time
+    mini_timer_start = time.time()
+    for day in range(1, days + 1):
+        process_day(day, 1)
+    mini_timer_end = time.time()
+    print(f"Running each day once took {mini_timer_end - mini_timer_start:.2f} seconds.")
+
     end_time = time.time()
-    print(f"Parallel Python processing took {end_time - start_time:.2f} seconds.")
+    print(f"Benchmarking process took {end_time - start_time:.2f} seconds.")
 
 
 main()
