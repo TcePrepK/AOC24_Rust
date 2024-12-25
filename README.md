@@ -34,7 +34,7 @@ The code for benchmarking is in [**benchmark.py**](./benchmark.py), also can see
 | [Day 13](./day13/src/main.rs) | 297.899µs | 288.994µs |
 | [Day 14](./day14/src/main.rs) | 152.921µs |    ---    |
 | [Day 15](./day15/src/main.rs) | 495.024µs | 721.059µs |
-| [Day 16](./day16/src/main.rs) | 75.775ms  | 96.498ms  |
+| [Day 16](./day16/src/main.rs) |  3.503ms  | 28.930ms  |
 | [Day 17](./day17/src/main.rs) |  4.689µs  | 10.741µs  |
 | [Day 18](./day18/src/main.rs) |  1.895ms  | 17.676ms  |
 | [Day 19](./day19/src/main.rs) | 48.682ms  | 46.596ms  |

@@ -100,14 +100,17 @@ fn find_start_end(grid: &Vec<Vec<char>>) -> ((i32, i32), (i32, i32)) {
     (start, end)
 }
 
-fn generate_weighted_map(grid: &Vec<Vec<char>>, start: (i32, i32)) -> Vec<Vec<[i32; 4]>> {
+fn generate_weighted_map(grid: &mut Vec<Vec<char>>, start: (i32, i32)) -> Vec<Vec<[i32; 4]>> {
     let mut weighted_map: Vec<Vec<[i32; 4]>> = vec![vec![[-1; 4]; grid[0].len()]; grid.len()];
     weighted_map[start.1 as usize][start.0 as usize] = [0; 4];
 
     let mut leaves: Vec<(i32, i32, &DIRECTION, i32)> =
         vec![(start.0, start.1, &DIRECTION::RIGHT, 0)];
-    while !leaves.is_empty() {
-        let leaf = leaves.pop().unwrap();
+    let mut first_index = 0;
+    while leaves.len() > first_index {
+        let leaf = leaves[first_index];
+        first_index += 1;
+
         let leaf_weight = leaf.3;
 
         let &mut mut weights = &mut weighted_map[leaf.1 as usize][leaf.0 as usize];
@@ -160,9 +163,9 @@ fn generate_weighted_map(grid: &Vec<Vec<char>>, start: (i32, i32)) -> Vec<Vec<[i
 
 #[allow(unused_variables)]
 fn first_part(input: &str) -> i32 {
-    let grid = get_grid(input);
-    let (start, end) = find_start_end(&grid);
-    let weighted_map = generate_weighted_map(&grid, start);
+    let mut grid = get_grid(input);
+    let (start, end) = find_start_end(&mut grid);
+    let weighted_map = generate_weighted_map(&mut grid, start);
 
     let end_weights = weighted_map[end.1 as usize][end.0 as usize];
 
@@ -171,9 +174,9 @@ fn first_part(input: &str) -> i32 {
 
 #[allow(unused_variables)]
 fn second_part(input: &str) -> i32 {
-    let grid = get_grid(input);
-    let (start, end) = find_start_end(&grid);
-    let weighted_map = generate_weighted_map(&grid, start);
+    let mut grid = get_grid(input);
+    let (start, end) = find_start_end(&mut grid);
+    let weighted_map = generate_weighted_map(&mut grid, start);
 
     let end_weight = *weighted_map[end.1 as usize][end.0 as usize]
         .iter()
