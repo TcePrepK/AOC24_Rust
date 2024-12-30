@@ -42,6 +42,7 @@ The code for benchmarking is in [**benchmark.py**](./benchmark.py), also can see
 | [Day 21](./day21/src/main.rs) | 13.387µs  | 87.894µs  |
 | [Day 22](./day22/src/main.rs) |  8.825ms  | 24.201ms  |
 | [Day 23](./day23/src/main.rs) |  1.155ms  |  1.393ms  |
+| [Day 24](./day24/src/main.rs) | 114.883µs | 274.001µs |
 
 ## License
 
