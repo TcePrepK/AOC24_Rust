@@ -18,7 +18,9 @@ def parse_time(value):
     number, unit = match.groups()
     number = float(number)
     # Convert based on unit
-    if unit == "µs":
+    if unit == "ns":
+        return number * 1e-9  # Nanoseconds to seconds
+    elif unit == "µs":
         return number * 1e-6  # Microseconds to seconds
     elif unit == "ms":
         return number * 1e-3  # Milliseconds to seconds
