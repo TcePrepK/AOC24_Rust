@@ -144,6 +144,7 @@ def main(iterations=100):
                 print(f"Day {day} processing failed: {exc}")
 
     # Plot results
+    all_medians = []
     fig, axes = plt.subplots(2, days, figsize=(days * 1.2, 5), sharey=False)
     for i, day in enumerate(sorted(results.keys())):
         part1_clean, part2_clean = results[day]
@@ -151,6 +152,8 @@ def main(iterations=100):
         # Calculate the medians of the cleaned data
         part1_med = np.median(part1_clean)
         part2_med = np.median(part2_clean)
+        all_medians.append(part1_med)
+        all_medians.append(part2_med)
         print(f"| [Day {day}](./day{day}/src/main.rs) | {format_time(part1_med)} | {format_time(part2_med)} |")
 
         # Determine the appropriate unit and scale
@@ -190,11 +193,8 @@ def main(iterations=100):
     print("Plots saved as 'ExecutionTimes.png'.")
 
     # Run each day once again to get total time
-    mini_timer_start = time.time()
-    for day in range(1, days + 1):
-        process_day(day, 1)
-    mini_timer_end = time.time()
-    print(f"Running each day once took {mini_timer_end - mini_timer_start:.2f} seconds.")
+    total_median = sum(all_medians)
+    print(f"Running each day once took {total_median:.2f} seconds.")
 
     end_time = time.time()
     print(f"Benchmarking process took {end_time - start_time:.2f} seconds.")
