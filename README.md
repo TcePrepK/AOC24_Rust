@@ -18,9 +18,6 @@ Results - [**results.txt**](./results.txt)
 Bar Graph - [**executionTimesBar.png**](./executionTimesBar.png)  
 Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 
-`???` For not solved days!  
-`---` For not benchmarkable days!
-
 |                               |  Part 1   |  Part 2   |
 |:-----------------------------:|:---------:|:---------:|
 |  [Day 1](./day1/src/main.rs)  | 146.453µs | 143.836µs |
@@ -36,7 +33,7 @@ Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 | [Day 11](./day11/src/main.rs) | 220.632µs |  7.047ms  |
 | [Day 12](./day12/src/main.rs) |  1.237ms  |  2.941ms  |
 | [Day 13](./day13/src/main.rs) | 297.899µs | 288.994µs |
-| [Day 14](./day14/src/main.rs) | 152.921µs |    ---    |
+| [Day 14](./day14/src/main.rs) | 152.921µs | 31.027ms  |
 | [Day 15](./day15/src/main.rs) | 495.024µs | 721.059µs |
 | [Day 16](./day16/src/main.rs) |  3.503ms  | 28.930ms  |
 | [Day 17](./day17/src/main.rs) |  4.689µs  | 10.741µs  |
