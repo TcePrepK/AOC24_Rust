@@ -55,20 +55,38 @@ def get_time_unit_and_scale(time):
         return "s", 1
 
 
+# Function to compile the Rust project
+def compile_rust_project(day_input):
+    project_path = f"day{day_input}/src"
+    try:
+        subprocess.run(
+            ["cargo", "build", "--color=always", "--release"],
+            cwd=project_path, check=True)
+    except subprocess.CalledProcessError:
+        print(f"Failed to compile project for day {day_input}")
+
+
 # Function to run the Rust binary and parse its output
 def run_rust_binary(day_input):
     try:
         result = subprocess.run(
             [f"target/release/day{day_input}"],
-            cwd=f"day{day_input}",
+            cwd="./",
             capture_output=True,
             text=True,
             check=True
         )
+
         output = result.stdout
-        part1_time = parse_time(re.search(r"Part 1 result: .*?, took: ([\d.]+[a-zµ]*)", output).group(1))
-        part2_time = parse_time(re.search(r"Part 2 result: .*?, took: ([\d.]+[a-zµ]*)", output).group(1))
-        return part1_time, part2_time
+        search_1 = re.search(r"Part-1 \( (.*?) \) - ([\d.]+[a-zµ]*)", output)
+        search_2 = re.search(r"Part-2 \( (.*?) \) - ([\d.]+[a-zµ]*)", output)
+
+        part1_result = search_1.group(1)
+        part2_result = search_2.group(1)
+        part1_time = parse_time(search_1.group(2))
+        part2_time = parse_time(search_2.group(2))
+
+        return part1_time, part2_time, part1_result, part2_result
     except subprocess.CalledProcessError as e:
         print(f"Error running binary:\n{e.stderr}")
         return None, None
@@ -92,9 +110,12 @@ def process_day(day, iterations):
     part1_times = []
     part2_times = []
 
+    p1_result = ""
+    p2_result = ""
+
     # Run the Rust binary several times
     for _ in range(iterations):
-        p1_time, p2_time = run_rust_binary(day)
+        p1_time, p2_time, p1_result, p2_result = run_rust_binary(day)
         if p1_time is not None and p2_time is not None:
             bisect.insort(part1_times, p1_time)
             bisect.insort(part2_times, p2_time)
@@ -102,6 +123,10 @@ def process_day(day, iterations):
     # Remove outliers (twice)
     part1_times_clean = remove_outliers(part1_times)
     part2_times_clean = remove_outliers(part2_times)
+
+    print(f"Day {day}")
+    print(f" |> {p1_result}")
+    print(f" |> {p2_result}")
 
     return part1_times_clean, part2_times_clean
 
@@ -112,15 +137,8 @@ def main(iterations=100):
     # First, compile the Rust projects
     days = 25
     print("Compiling Rust projects...")
-    try:
-        subprocess.run(
-            [
-                "cargo", "build", "--color=always",
-                "--profile", "release"
-            ], cwd="./")
-    except subprocess.CalledProcessError:
-        print(f"Error compiling Rust projects")
-        return
+    for day in range(1, days + 1):
+        compile_rust_project(day)
 
     # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4)
     results = {}
