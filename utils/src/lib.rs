@@ -1,10 +1,6 @@
 use std::fmt::Display;
 use std::fs;
 
-pub fn greet(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
-
 #[inline]
 pub fn read_file(path: &str) -> String {
     if fs::exists(path).expect("Could not check file") {
