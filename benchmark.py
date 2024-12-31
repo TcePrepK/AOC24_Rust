@@ -128,13 +128,13 @@ def process_day(day, iterations):
 
 
 def main(iterations=100):
-    start_time = time.time()
-
     # First, compile the Rust projects
     days = 25
     print("Compiling Rust projects...")
     for day in range(1, days + 1):
         compile_rust_project(day)
+
+    start_time = time.time()
 
     # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4.o)
     print("Processing days...")
