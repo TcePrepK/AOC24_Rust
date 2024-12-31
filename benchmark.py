@@ -7,6 +7,7 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import ticker
 
 
 # Function to parse the time value from the Rust output
@@ -144,7 +145,9 @@ def main(iterations=100):
                 print(f"Day {day} processing failed: {exc}")
 
     # Plot results
-    all_medians = []
+    part1_medians = []
+    part2_medians = []
+
     fig, axes = plt.subplots(2, days, figsize=(days * 1.2, 5), sharey=False)
     for i, day in enumerate(sorted(results.keys())):
         part1_clean, part2_clean = results[day]
@@ -152,8 +155,8 @@ def main(iterations=100):
         # Calculate the medians of the cleaned data
         part1_med = np.median(part1_clean)
         part2_med = np.median(part2_clean)
-        all_medians.append(part1_med)
-        all_medians.append(part2_med)
+        part1_medians.append(part1_med)
+        part2_medians.append(part2_med)
         print(f"| [Day {day}](./day{day}/src/main.rs) | {format_time(part1_med)} | {format_time(part2_med)} |")
 
         # Determine the appropriate unit and scale
@@ -186,18 +189,78 @@ def main(iterations=100):
         )
         ax2.set_xticks([])
 
-    # General title and finishing touches
-    fig.suptitle("Execution Times Across Days (Part 1 and Part 2)", fontsize=18, fontweight="bold")
-    plt.tight_layout()
-    plt.savefig("ExecutionTimes.png")
-    print("Plots saved as 'ExecutionTimes.png'.")
-
-    # Run each day once again to get total time
-    total_median = sum(all_medians)
-    print(f"Running each day once took {total_median:.2f} seconds.")
-
     end_time = time.time()
     print(f"Benchmarking process took {end_time - start_time:.2f} seconds.")
+
+    # Get the total median value to use for total time
+    total_median = sum(part1_medians) + sum(part2_medians)
+    print(f"Running each day once took {total_median:.2f} seconds.")
+
+    # General title and finishing touches
+    fig.suptitle("Runtimes Across Days (Part 1 and Part 2)", fontsize=18, fontweight="bold")
+    plt.tight_layout()
+    plt.savefig("ExecutionTimes.png")
+    plt.close()
+    print("Plots saved as 'ExecutionTimes.png'.")
+
+    # Generate the labels and bars of the graph
+    labels = [f"Day {i}" for i in range(1, days + 1)]
+    values_1 = [item * 1000 for item in part1_medians]
+    values_2 = [item * 1000 for item in part2_medians]
+
+    x = np.arange(len(labels))
+
+    # Setup the whole graph
+    width = 0.45
+    fig, ax = plt.subplots(figsize=(days * 1.5, 7))
+    rects1 = ax.bar(x - width / 2, values_1, width, label='Part 1')
+    rects2 = ax.bar(x + width / 2, values_2, width, label='Part 2')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.set_xlim(-0.5, len(labels) - 0.5)
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
+    plt.ylabel("Runtime (ms)", fontsize=14, color='#333')
+    plt.title(f"Runtimes Across Days ({iterations} Iterations)", fontsize=18, color='#333')
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_color('#ccc')
+
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, color='#ccc')
+    ax.xaxis.grid(False)
+
+    def autolabel(rects, labels, color):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for i in range(len(rects)):
+            rect = rects[i]
+            label = labels[i]
+            height = rect.get_height()
+
+            minimum_height = 12
+            rotation = 0 if height < minimum_height else 90
+            font_size = 8 if height < minimum_height else 12
+            y_origin = height if height < minimum_height else height / 2
+            ax.annotate(format(label),
+                        xy=(rect.get_x() + rect.get_width() / 2, y_origin),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        fontsize=font_size,
+                        color=color,
+                        rotation=rotation,
+                        ha='center', va='center')
+
+    autolabel(rects1, [format_time(item) for item in part1_medians], "#238")
+    autolabel(rects2, [format_time(item) for item in part2_medians], "#843")
+
+    # Save the graph to a file
+    plt.tight_layout()
+    plt.savefig("ExecutionTimesBar.png")
+    plt.close()
+    print("Bars saved as 'ExecutionTimesBar.png'.")
 
 
 main()
