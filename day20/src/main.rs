@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use utils::test_solutions;
 
 fn main() {
@@ -115,9 +116,8 @@ fn second_part(input: &str) -> u32 {
     let (start, end) = find_start_end(&grid);
     let (weight_grid, path) = get_weight_grid_path(&grid, start, end);
 
-    let mut total_skips = 0;
-    for i in 0..(path.len() - 5) {
-        let ((x, y), cw) = path[i];
+    let skips_per_tile = path.par_iter().map(|((x, y), cw)| {
+        let mut skips = 0;
         for ox in -20_i32..21 {
             for oy in (ox.abs() - 20)..(21 - ox.abs()) {
                 let dist = ox.abs() + oy.abs();
@@ -125,7 +125,7 @@ fn second_part(input: &str) -> u32 {
                     continue;
                 }
 
-                let (nx, ny) = (x as i32 + ox, y as i32 + oy);
+                let (nx, ny) = (*x as i32 + ox, *y as i32 + oy);
                 if nx < 0
                     || ny < 0
                     || nx >= weight_grid.len() as i32
@@ -139,12 +139,14 @@ fn second_part(input: &str) -> u32 {
                     continue;
                 }
 
-                if next_weight > cw && next_weight - cw >= (100 + dist) as u32 {
-                    total_skips += 1;
+                if next_weight > *cw && next_weight - cw >= (100 + dist) as u32 {
+                    skips += 1;
                 }
             }
         }
-    }
 
-    total_skips
+        skips
+    });
+
+    skips_per_tile.sum::<u32>()
 }
