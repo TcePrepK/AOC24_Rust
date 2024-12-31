@@ -1,6 +1,5 @@
 import bisect
 import concurrent.futures
-import os
 import re
 import subprocess
 import time
@@ -54,15 +53,6 @@ def get_time_unit_and_scale(time):
         return "ms", 1e3
     else:
         return "s", 1
-
-
-# Function to compile the Rust project
-def compile_rust_project(day_input):
-    project_path = f"day{day_input}/src"
-    try:
-        subprocess.run(["cargo", "build", "--release"], cwd=project_path, check=True)
-    except subprocess.CalledProcessError:
-        print(f"Failed to compile project for day {day_input}")
 
 
 # Function to run the Rust binary and parse its output
@@ -120,14 +110,17 @@ def main(iterations=100):
     start_time = time.time()
 
     # First, compile the Rust projects
-    days = 0
+    days = 25
     print("Compiling Rust projects...")
-    for day in range(1, 26):
-        project_path = f"day{day}/src"
-        if not os.path.exists(project_path):
-            break
-        compile_rust_project(day)
-        days += 1
+    try:
+        subprocess.run(
+            [
+                "cargo", "build", "--color=always",
+                "--profile", "release"
+            ], cwd="./")
+    except subprocess.CalledProcessError:
+        print(f"Error compiling Rust projects")
+        return
 
     # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4)
     results = {}

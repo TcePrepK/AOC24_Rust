@@ -1,11 +1,8 @@
 use ahash::{AHashMap, AHashSet};
 use utils::test_solutions;
 
-const ANSWER_ONE: u64 = 6;
-const ANSWER_TWO: u64 = 16;
-
 fn main() {
-    test_solutions(&first_part, ANSWER_ONE, &second_part, ANSWER_TWO);
+    test_solutions(19, &first_part, Some(6), &second_part, Some(16));
 }
 
 /* ------------------- Helpers ------------------- */

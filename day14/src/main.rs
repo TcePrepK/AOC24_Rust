@@ -1,49 +1,9 @@
-use std::fs;
-use std::ops::{Add, Mul, Rem};
-
-fn read_file(path: &str) -> String {
-    fs::read_to_string(path).expect("Could not read file")
-}
-
-const ANSWER_ONE: i32 = 21;
-const ANSWER_TWO: i32 = 0;
-
-fn test_examples() -> [bool; 2] {
-    let example = read_file("src/example");
-
-    let results = [first_part(&example), 0];
-
-    if results[0] > 0 && results[0] != ANSWER_ONE {
-        println!("Part One Wrong");
-    }
-
-    if results[1] > 0 && results[1] != ANSWER_TWO {
-        println!("Part Two Wrong");
-    }
-
-    [results[0] == ANSWER_ONE, results[1] == ANSWER_TWO]
-}
-
-fn test_inputs(example_solutions: [bool; 2]) {
-    let input = read_file("src/input");
-
-    if example_solutions[0] {
-        let start_time = std::time::Instant::now();
-        let result = first_part(&input);
-        let total_time = start_time.elapsed();
-        println!("Part 1 result: {}, took: {:?}", result, total_time);
-    }
-    if example_solutions[1] {
-        let start_time = std::time::Instant::now();
-        let result = second_part(&input);
-        let total_time = start_time.elapsed();
-        println!("Part 2 result: {}, took: {:?}", result, total_time);
-    }
-}
+use std::ops::Mul;
+use std::ops::{Add, Rem};
+use utils::test_solutions;
 
 fn main() {
-    let example_solutions = test_examples();
-    test_inputs(example_solutions);
+    test_solutions(14, &first_part, Some(21), &second_part, None);
 }
 
 /* ------------------- Helpers ------------------- */
@@ -214,14 +174,6 @@ fn second_part(input: &str) -> i32 {
         let limited_pos = (next_pos % resolution + resolution) % resolution;
 
         drawing[limited_pos.y as usize][limited_pos.x as usize] = '#';
-    }
-
-    // Render the end result to see if it is a tree.
-    for y in 0..height {
-        for x in 0..width {
-            print!("{}", drawing[y as usize][x as usize]);
-        }
-        println!();
     }
 
     minimal_step

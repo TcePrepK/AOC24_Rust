@@ -4,7 +4,13 @@ const ANSWER_ONE: i32 = -1;
 const ANSWER_TWO: i32 = -1;
 
 fn main() {
-    test_solutions(&first_part, ANSWER_ONE, &second_part, ANSWER_TWO);
+    test_solutions(
+        0,
+        &first_part,
+        Some(ANSWER_ONE),
+        &second_part,
+        Some(ANSWER_TWO),
+    );
 }
 
 /* ------------------- Helpers ------------------- */
