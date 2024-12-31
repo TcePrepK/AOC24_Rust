@@ -6,13 +6,17 @@ My solutions to the [Advent of Code 2024](https://adventofcode.com/2024) challen
 
 Each day has a folder with the solutions for that day.
 
-## Benchmarks
+## Benchmarking
 
 Benchmarked on a Victus with 20 × 12th Gen Intel® Core™ i7-12700H and 32 GB of RAM.  
 Bench marking is done by iterating the released rust binary 100 times, removing outliers, and getting the sorted
-median.  
-The code for benchmarking is in [**benchmark.py**](./benchmark.py), also can see execution times as box-plot in
-[**ExecutionTimes.png**](./ExecutionTimes.png).
+median.
+
+The code for benchmarking is in [**benchmark.py**](./benchmark.py). Saves the results and execution times as bar-graph
+and box-plot.  
+Results - [**results.txt**](./results.txt)
+Bar Graph - [**executionTimesBar.png**](./executionTimesBar.png)  
+Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 
 `???` For not solved days!  
 `---` For not benchmarkable days!
