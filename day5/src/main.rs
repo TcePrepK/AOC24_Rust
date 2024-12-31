@@ -6,12 +6,10 @@ fn main() {
 
 /* ------------------- Helpers ------------------- */
 
-/* ------------------- Solutions ------------------- */
-
-fn first_part(input: &str) -> i32 {
+/// Parses the input and returns the rules and lines.
+fn parse_input(input: &str) -> (Vec<[i32; 2]>, Vec<Vec<i32>>) {
     let data = input.split("\n\n").collect::<Vec<&str>>();
 
-    // Just splitting and mapping to get the proper vectors.
     let rules = data[0]
         .split("\n")
         .map(|line| {
@@ -29,6 +27,14 @@ fn first_part(input: &str) -> i32 {
                 .collect::<Vec<i32>>()
         })
         .collect::<Vec<Vec<i32>>>();
+
+    (rules, lines)
+}
+
+/* ------------------- Solutions ------------------- */
+
+fn first_part(input: &str) -> i32 {
+    let (rules, lines) = parse_input(input);
 
     // For each line, check every rule
     let mut result: i32 = 0;
@@ -79,26 +85,7 @@ fn first_part(input: &str) -> i32 {
 }
 
 fn second_part(input: &str) -> i32 {
-    let data = input.split("\n\n").collect::<Vec<&str>>();
-
-    // Just splitting and mapping to get the proper vectors.
-    let rules = data[0]
-        .split("\n")
-        .map(|line| {
-            line.split("|")
-                .map(|s| s.parse::<i32>().unwrap())
-                .collect::<Vec<i32>>()
-        })
-        .map(|lines| [lines[0], lines[1]])
-        .collect::<Vec<[i32; 2]>>();
-    let mut lines = data[1]
-        .split("\n")
-        .map(|line| {
-            line.split(",")
-                .map(|s| s.parse::<i32>().unwrap())
-                .collect::<Vec<i32>>()
-        })
-        .collect::<Vec<Vec<i32>>>();
+    let (rules, mut lines) = parse_input(input);
 
     // For each line, check every rule
     let mut result: i32 = 0;
