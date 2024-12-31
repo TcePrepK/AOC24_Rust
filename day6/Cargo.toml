@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 utils = { path = "../utils" }
+ahash = "0.8.11"
+rayon = "1.10.0"

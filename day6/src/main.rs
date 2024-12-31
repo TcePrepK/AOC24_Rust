@@ -1,3 +1,5 @@
+use ahash::AHashSet;
+use rayon::prelude::*;
 use utils::test_solutions;
 
 fn main() {
@@ -6,37 +8,12 @@ fn main() {
 
 /* ------------------- Helpers ------------------- */
 
-#[derive(Debug)]
-enum DIRECTION {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
+fn dir_to_vec(dir: u8) -> (i32, i32) {
+    [(0, -1), (1, 0), (0, 1), (-1, 0)][dir as usize]
 }
 
-fn dir_to_vec(dir: &DIRECTION) -> (i32, i32) {
-    match dir {
-        DIRECTION::UP => (0, -1),
-        DIRECTION::RIGHT => (1, 0),
-        DIRECTION::DOWN => (0, 1),
-        DIRECTION::LEFT => (-1, 0),
-    }
-}
-
-fn rot_dir(dir: &DIRECTION) -> DIRECTION {
-    match dir {
-        DIRECTION::UP => DIRECTION::RIGHT,
-        DIRECTION::RIGHT => DIRECTION::DOWN,
-        DIRECTION::DOWN => DIRECTION::LEFT,
-        DIRECTION::LEFT => DIRECTION::UP,
-    }
-}
-
-/* ------------------- Solutions ------------------- */
-
-#[allow(unused_variables)]
-fn first_part(input: &str) -> i32 {
-    let mut grid: Vec<Vec<char>> = vec![];
+fn parse_input(input: &str) -> (Vec<Vec<char>>, (usize, usize)) {
+    let mut grid: Vec<Vec<char>> = Vec::with_capacity(input.lines().count());
     let mut guard: (usize, usize) = (0, 0);
 
     for (y, line) in input.lines().enumerate() {
@@ -50,10 +27,19 @@ fn first_part(input: &str) -> i32 {
         }
         grid.push(subgrid);
     }
+
+    (grid, guard)
+}
+
+/* ------------------- Solutions ------------------- */
+
+#[allow(unused_variables)]
+fn first_part(input: &str) -> u32 {
+    let (mut grid, mut guard) = parse_input(input);
     let height: usize = grid.len();
     let width: usize = grid[0].len();
 
-    let mut total: i32 = 0;
+    let mut total = 0;
 
     let mut direction: (i32, i32) = (0, -1);
     loop {
@@ -85,32 +71,19 @@ fn first_part(input: &str) -> i32 {
 }
 
 #[allow(unused_variables)]
-fn second_part(input: &str) -> i32 {
-    let mut grid: Vec<Vec<char>> = vec![];
-    let mut main_guard: (usize, usize) = (0, 0);
-
-    for (y, line) in input.lines().enumerate() {
-        let mut subgrid: Vec<char> = vec![];
-        for (x, char) in line.chars().enumerate() {
-            subgrid.push(char);
-
-            if char == '^' {
-                main_guard = (x, y);
-            }
-        }
-        grid.push(subgrid);
-    }
+fn second_part(input: &str) -> u32 {
+    let (grid, main_guard) = parse_input(input);
     let height: usize = grid.len();
     let width: usize = grid[0].len();
 
     // Run the guard once and store the path.
     let mut guard = main_guard.clone();
 
-    let mut wall_poses: Vec<(usize, usize)> = vec![];
-    let mut direction: DIRECTION = DIRECTION::UP;
+    let mut main_path: AHashSet<(usize, usize)> = AHashSet::new();
+    let mut direction: u8 = 0;
     loop {
         let (fx, fy) = guard;
-        let (dx, dy) = dir_to_vec(&direction);
+        let (dx, dy) = dir_to_vec(direction);
 
         let (nx, ny) = ((fx as i32 + dx) as usize, ((fy as i32) + dy) as usize);
         if nx >= width || ny >= height {
@@ -119,14 +92,12 @@ fn second_part(input: &str) -> i32 {
 
         match grid[ny][nx] {
             '#' => {
-                direction = rot_dir(&direction);
+                direction = (direction + 1) % 4;
                 guard = (fx, fy);
             }
             '.' => {
                 guard = (nx, ny);
-                if !wall_poses.contains(&guard.clone()) {
-                    wall_poses.push(guard.clone());
-                }
+                main_path.insert(guard.clone());
             }
             _ => {
                 guard = (nx, ny);
@@ -134,43 +105,43 @@ fn second_part(input: &str) -> i32 {
         }
     }
 
-    let mut loops: i32 = 0;
-    for (wall_x, wall_y) in wall_poses.iter() {
-        grid[*wall_y][*wall_x] = '#';
-        guard = main_guard.clone();
+    let looping_paths = main_path.par_iter().filter(|(x, y)| {
+        let mut guard = main_guard.clone();
 
         let mut visited: Vec<Vec<i8>> = vec![vec![0; width]; height];
-        let mut direction: DIRECTION = DIRECTION::UP;
+        let mut direction: u8 = 0;
 
         loop {
             let (fx, fy) = guard;
-            let (dx, dy) = dir_to_vec(&direction);
+            let (dx, dy) = dir_to_vec(direction);
 
             if visited[fy][fx] > 2 {
-                loops += 1;
-                break;
+                return true;
             }
 
             visited[fy][fx] += 1;
 
             let (nx, ny) = ((fx as i32 + dx) as usize, ((fy as i32) + dy) as usize);
             if nx >= width || ny >= height {
-                break;
+                return false;
             }
 
-            match grid[ny][nx] {
-                '#' => {
-                    direction = rot_dir(&direction);
-                    guard = (fx, fy);
-                }
-                _ => {
-                    guard = (nx, ny);
+            if ny == *y && nx == *x {
+                direction = (direction + 1) % 4;
+                guard = (fx, fy);
+            } else {
+                match grid[ny][nx] {
+                    '#' => {
+                        direction = (direction + 1) % 4;
+                        guard = (fx, fy);
+                    }
+                    _ => {
+                        guard = (nx, ny);
+                    }
                 }
             }
         }
+    });
 
-        grid[*wall_y][*wall_x] = '.';
-    }
-
-    loops
+    looping_paths.count() as u32
 }
