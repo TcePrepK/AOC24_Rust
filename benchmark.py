@@ -124,11 +124,7 @@ def process_day(day, iterations):
     part1_times_clean = remove_outliers(part1_times)
     part2_times_clean = remove_outliers(part2_times)
 
-    print(f"Day {day}")
-    print(f" |> {p1_result}")
-    print(f" |> {p2_result}")
-
-    return part1_times_clean, part2_times_clean
+    return part1_times_clean, part2_times_clean, p1_result, p2_result
 
 
 def main(iterations=100):
@@ -140,7 +136,8 @@ def main(iterations=100):
     for day in range(1, days + 1):
         compile_rust_project(day)
 
-    # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4)
+    # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4.o)
+    print("Processing days...")
     results = {}
     with concurrent.futures.ProcessPoolExecutor() as executor:
         future_to_day = {
@@ -149,9 +146,9 @@ def main(iterations=100):
         for future in concurrent.futures.as_completed(future_to_day):
             day = future_to_day[future]
             try:
-                part1_times, part2_times = future.result()
+                part1_times, part2_times, part1_result, part2_result = future.result()
                 if part1_times is not None and part2_times is not None:
-                    results[day] = (part1_times, part2_times)
+                    results[day] = (part1_times, part2_times, part1_result, part2_result)
             except Exception as exc:
                 print(f"Day {day} processing failed: {exc}")
 
@@ -161,7 +158,7 @@ def main(iterations=100):
 
     fig, axes = plt.subplots(2, days, figsize=(days * 1.2, 5), sharey=False)
     for i, day in enumerate(sorted(results.keys())):
-        part1_clean, part2_clean = results[day]
+        part1_clean, part2_clean, _, _ = results[day]
 
         # Calculate the medians of the cleaned data
         part1_med = np.median(part1_clean)
@@ -207,12 +204,21 @@ def main(iterations=100):
     total_median = sum(part1_medians) + sum(part2_medians)
     print(f"Running each day once took {total_median:.2f} seconds.")
 
+    print()
+    # Open (or create) a file in the writing mode ('w')
+    with open("results.txt", "w") as file:
+        for day in range(1, days + 1):
+            file.write(f"Day {day}:\n")
+            file.write(f" |> {results[day][2]}\n")
+            file.write(f" |> {results[day][3]}\n")
+    print("Results saved as 'results.txt'.")
+
     # General title and finishing touches
     fig.suptitle("Runtimes Across Days (Part 1 and Part 2)", fontsize=18, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("ExecutionTimes.png")
+    plt.savefig("executionTimesBox.png")
     plt.close()
-    print("Plots saved as 'ExecutionTimes.png'.")
+    print("Plots saved as 'executionTimesBox.png'.")
 
     # Generate the labels and bars of the graph
     labels = [f"Day {i}" for i in range(1, days + 1)]
@@ -269,9 +275,9 @@ def main(iterations=100):
 
     # Save the graph to a file
     plt.tight_layout()
-    plt.savefig("ExecutionTimesBar.png")
+    plt.savefig("executionTimesBar.png")
     plt.close()
-    print("Bars saved as 'ExecutionTimesBar.png'.")
+    print("Bars saved as 'executionTimesBar.png'.")
 
 
 main()
