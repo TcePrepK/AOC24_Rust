@@ -1,5 +1,13 @@
+mod grid;
+mod point;
+
 use std::fmt::Debug;
 use std::fs;
+
+pub use grid::*;
+pub use point::*;
+
+/* --------------------------- Parsers --------------------------- */
 
 #[inline]
 pub fn read_file(path: &str) -> String {
