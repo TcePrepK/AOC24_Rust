@@ -1,5 +1,4 @@
 import bisect
-import concurrent.futures
 import re
 import subprocess
 import time
@@ -136,21 +135,28 @@ def main(iterations=100):
 
     start_time = time.time()
 
-    # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4.o)
     print("Processing days...")
     results = {}
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        future_to_day = {
-            executor.submit(process_day, day, iterations): day for day in range(1, days + 1)
-        }
-        for future in concurrent.futures.as_completed(future_to_day):
-            day = future_to_day[future]
-            try:
-                part1_times, part2_times, part1_result, part2_result = future.result()
-                if part1_times is not None and part2_times is not None:
-                    results[day] = (part1_times, part2_times, part1_result, part2_result)
-            except Exception as exc:
-                print(f"Day {day} processing failed: {exc}")
+
+    # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4.o)
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     future_to_day = {
+    #         executor.submit(process_day, day, iterations): day for day in range(1, days + 1)
+    #     }
+    #     for future in concurrent.futures.as_completed(future_to_day):
+    #         day = future_to_day[future]
+    #         try:
+    #             part1_times, part2_times, part1_result, part2_result = future.result()
+    #             if part1_times is not None and part2_times is not None:
+    #                 results[day] = (part1_times, part2_times, part1_result, part2_result)
+    #         except Exception as exc:
+    #             print(f"Day {day} processing failed: {exc}")
+
+    # Run each day several times and store the results
+    for day in range(1, days + 1):
+        part1_times, part2_times, part1_result, part2_result = process_day(day, iterations)
+        if part1_times is not None and part2_times is not None:
+            results[day] = (part1_times, part2_times, part1_result, part2_result)
 
     # Plot results
     part1_medians = []
