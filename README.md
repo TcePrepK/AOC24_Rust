@@ -20,31 +20,31 @@ Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 
 |                               |  Part 1   |  Part 2   |
 |:-----------------------------:|:---------:|:---------:|
-|  [Day 1](./day1/src/main.rs)  | 146.453µs | 143.836µs |
-|  [Day 2](./day2/src/main.rs)  | 248.920µs | 360.482µs |
-|  [Day 3](./day3/src/main.rs)  | 479.261µs |  6.497ms  |
-|  [Day 4](./day4/src/main.rs)  | 559.377µs | 237.285µs |
-|  [Day 5](./day5/src/main.rs)  |  6.227ms  |  8.751ms  |
-|  [Day 6](./day6/src/main.rs)  | 140.819µs | 15.997ms  |
-|  [Day 7](./day7/src/main.rs)  |  1.198ms  |  4.591ms  |
-|  [Day 8](./day8/src/main.rs)  | 52.981µs  | 78.335µs  |
-|  [Day 9](./day9/src/main.rs)  | 908.505µs | 20.230ms  |
-| [Day 10](./day10/src/main.rs) | 799.292µs | 462.095µs |
-| [Day 11](./day11/src/main.rs) | 220.632µs |  7.047ms  |
-| [Day 12](./day12/src/main.rs) |  1.237ms  |  2.941ms  |
-| [Day 13](./day13/src/main.rs) | 297.899µs | 288.994µs |
-| [Day 14](./day14/src/main.rs) | 152.921µs | 31.027ms  |
-| [Day 15](./day15/src/main.rs) | 495.024µs | 721.059µs |
-| [Day 16](./day16/src/main.rs) |  3.503ms  | 28.930ms  |
-| [Day 17](./day17/src/main.rs) |  4.689µs  | 10.741µs  |
-| [Day 18](./day18/src/main.rs) |  1.895ms  | 17.676ms  |
-| [Day 19](./day19/src/main.rs) | 13.468ms  | 11.816ms  |
-| [Day 20](./day20/src/main.rs) | 785.037µs | 18.788ms  |
-| [Day 21](./day21/src/main.rs) | 13.387µs  | 87.894µs  |
-| [Day 22](./day22/src/main.rs) |  8.825ms  | 24.201ms  |
-| [Day 23](./day23/src/main.rs) |  1.155ms  |  1.393ms  |
-| [Day 24](./day24/src/main.rs) | 114.883µs | 274.001µs |
-| [Day 25](./day25/src/main.rs) |  1.026ms  | 73.000ns  |
+|  [Day 1](./day1/src/main.rs)  | 136.231µs | 146.004µs |
+|  [Day 2](./day2/src/main.rs)  | 235.518µs | 326.648µs |
+|  [Day 3](./day3/src/main.rs)  | 456.810µs |  6.428ms  |
+|  [Day 4](./day4/src/main.rs)  | 481.475µs | 209.835µs |
+|  [Day 5](./day5/src/main.rs)  |  7.345ms  | 11.890ms  |
+|  [Day 6](./day6/src/main.rs)  | 238.012µs | 16.555ms  |
+|  [Day 7](./day7/src/main.rs)  |  1.538ms  |  5.414ms  |
+|  [Day 8](./day8/src/main.rs)  | 79.195µs  | 119.705µs |
+|  [Day 9](./day9/src/main.rs)  |  1.374ms  | 27.478ms  |
+| [Day 10](./day10/src/main.rs) |  1.081ms  | 669.132µs |
+| [Day 11](./day11/src/main.rs) | 444.993µs | 12.272ms  |
+| [Day 12](./day12/src/main.rs) |  1.527ms  |  3.429ms  |
+| [Day 13](./day13/src/main.rs) | 391.282µs | 383.308µs |
+| [Day 14](./day14/src/main.rs) | 204.585µs | 28.841ms  |
+| [Day 15](./day15/src/main.rs) | 771.976µs |  1.092ms  |
+| [Day 16](./day16/src/main.rs) |  1.092ms  |  5.887ms  |
+| [Day 17](./day17/src/main.rs) |  9.330µs  | 15.935µs  |
+| [Day 18](./day18/src/main.rs) |  2.607ms  | 19.335ms  |
+| [Day 19](./day19/src/main.rs) | 25.221ms  | 22.408ms  |
+| [Day 20](./day20/src/main.rs) |  1.628ms  | 10.205ms  |
+| [Day 21](./day21/src/main.rs) | 21.091µs  | 137.173µs |
+| [Day 22](./day22/src/main.rs) | 14.531ms  | 41.554ms  |
+| [Day 23](./day23/src/main.rs) |  1.734ms  |  1.648ms  |
+| [Day 24](./day24/src/main.rs) | 164.410µs | 400.493µs |
+| [Day 25](./day25/src/main.rs) |  1.174ms  | 62.000ns  |
 
 ## License
 
