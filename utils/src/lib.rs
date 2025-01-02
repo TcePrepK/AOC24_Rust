@@ -1,11 +1,13 @@
 mod grid;
 mod point;
+mod thread;
 
 use std::fmt::Debug;
 use std::fs;
 
 pub use grid::*;
 pub use point::*;
+pub use thread::*;
 
 /* --------------------------- Parsers --------------------------- */
 
