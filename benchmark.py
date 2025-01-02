@@ -126,60 +126,32 @@ def process_day(day, iterations):
     return part1_times_clean, part2_times_clean, p1_result, p2_result
 
 
-def main(iterations=100):
-    # First, compile the Rust projects
-    days = 25
-    print("Compiling Rust projects...")
-    for day in range(1, days + 1):
-        compile_rust_project(day)
+# Generates the `results` file for storing and comparing results
+def generate_results_file(days, part1_results, part2_results):
+    # Open (or create) a file in the writing mode ('w')
+    with open("results.txt", "w") as file:
+        for day in range(0, days):
+            file.write(f"Day {day + 1}:\n")
+            file.write(f" |> {part1_results[day]}\n")
+            file.write(f" |> {part2_results[day]}\n")
+    print("Results saved as 'results.txt'.")
 
-    start_time = time.time()
 
-    print("Processing days...")
-    results = {}
-
-    # Use ThreadPoolExecutor or ProcessPoolExecutor (code stolen from ChatGPT 4.o)
-    # with concurrent.futures.ProcessPoolExecutor() as executor:
-    #     future_to_day = {
-    #         executor.submit(process_day, day, iterations): day for day in range(1, days + 1)
-    #     }
-    #     for future in concurrent.futures.as_completed(future_to_day):
-    #         day = future_to_day[future]
-    #         try:
-    #             part1_times, part2_times, part1_result, part2_result = future.result()
-    #             if part1_times is not None and part2_times is not None:
-    #                 results[day] = (part1_times, part2_times, part1_result, part2_result)
-    #         except Exception as exc:
-    #             print(f"Day {day} processing failed: {exc}")
-
-    # Run each day several times and store the results
-    for day in range(1, days + 1):
-        part1_times, part2_times, part1_result, part2_result = process_day(day, iterations)
-        if part1_times is not None and part2_times is not None:
-            results[day] = (part1_times, part2_times, part1_result, part2_result)
-
-    # Plot results
-    part1_medians = []
-    part2_medians = []
-
+# Generates the blox plot image for the results
+def generate_box_plot(days, part1_times, part2_times):
     fig, axes = plt.subplots(2, days, figsize=(days * 1.2, 5), sharey=False)
-    for i, day in enumerate(sorted(results.keys())):
-        part1_clean, part2_clean, _, _ = results[day]
-
-        # Calculate the medians of the cleaned data
-        part1_med = np.median(part1_clean)
-        part2_med = np.median(part2_clean)
-        part1_medians.append(part1_med)
-        part2_medians.append(part2_med)
-        print(f"| [Day {day}](./day{day}/src/main.rs) | {format_time(part1_med)} | {format_time(part2_med)} |")
+    for day in range(0, days):
+        # Calculate the medians of the data
+        part1_med = np.median(part1_times[day])
+        part2_med = np.median(part2_times[day])
 
         # Determine the appropriate unit and scale
         time_unit, scale = get_time_unit_and_scale(max(part1_med, part2_med))
-        part1_scaled = [t * scale for t in part1_clean]
-        part2_scaled = [t * scale for t in part2_clean]
+        part1_scaled = [t * scale for t in part1_times[day]]
+        part2_scaled = [t * scale for t in part2_times[day]]
 
         # Plot Part 1
-        ax1 = axes[0, i]
+        ax1 = axes[0, day]
         ax1.boxplot(
             [part1_scaled],
             patch_artist=True,
@@ -192,7 +164,7 @@ def main(iterations=100):
         ax1.set_xticks([])
 
         # Plot Part 2
-        ax2 = axes[1, i]
+        ax2 = axes[1, day]
         ax2.boxplot(
             [part2_scaled],
             patch_artist=True,
@@ -203,22 +175,6 @@ def main(iterations=100):
         )
         ax2.set_xticks([])
 
-    end_time = time.time()
-    print(f"Benchmarking process took {end_time - start_time:.2f} seconds.")
-
-    # Get the total median value to use for total time
-    total_median = sum(part1_medians) + sum(part2_medians)
-    print(f"Running each day once took {total_median:.2f} seconds.")
-
-    print()
-    # Open (or create) a file in the writing mode ('w')
-    with open("results.txt", "w") as file:
-        for day in range(1, days + 1):
-            file.write(f"Day {day}:\n")
-            file.write(f" |> {results[day][2]}\n")
-            file.write(f" |> {results[day][3]}\n")
-    print("Results saved as 'results.txt'.")
-
     # General title and finishing touches
     fig.suptitle("Runtimes Across Days (Part 1 and Part 2)", fontsize=18, fontweight="bold")
     plt.tight_layout()
@@ -226,14 +182,16 @@ def main(iterations=100):
     plt.close()
     print("Plots saved as 'executionTimesBox.png'.")
 
-    # Generate the labels and bars of the graph
+
+# Generates the bar plot image for the results
+def generate_bar_plot(days, part1_medians, part2_medians):
+    # Generate the labels and bar values of the graph
     labels = [f"Day {i}" for i in range(1, days + 1)]
     values_1 = [item * 1000 for item in part1_medians]
     values_2 = [item * 1000 for item in part2_medians]
-
     x = np.arange(len(labels))
 
-    # Setup the whole graph
+    # Set up the whole graph
     width = 0.45
     fig, ax = plt.subplots(figsize=(days * 1.5, 7))
     rects1 = ax.bar(x - width / 2, values_1, width, label='Part 1')
@@ -245,7 +203,7 @@ def main(iterations=100):
     ax.set_xlim(-0.5, len(labels) - 0.5)
     ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
     plt.ylabel("Runtime (ms)", fontsize=14, color='#333')
-    plt.title(f"Runtimes Across Days ({iterations} Iterations)", fontsize=18, color='#333')
+    plt.title(f"Runtimes Across Days", fontsize=18, color='#333')
 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -284,6 +242,117 @@ def main(iterations=100):
     plt.savefig("executionTimesBar.png")
     plt.close()
     print("Bars saved as 'executionTimesBar.png'.")
+
+
+# Generates the pie chart image for the results
+def generate_pie_chart(days, part1_medians, part2_medians):
+    # Calculate the percentages of each day
+    day_medians = [part1_medians[i] + part2_medians[i] for i in range(days)]
+    total_time = np.sum(day_medians)
+
+    percentages = [day_medians[i] / total_time * 100 for i in range(days)]
+    labels = [f"Day {i}" for i in range(1, days + 1)]
+
+    # Create a color palette
+    color_map = plt.get_cmap('turbo')
+    wedge_colors = color_map(np.linspace(0.9, 0, len(labels)))
+
+    # Reverse the percentages so that it rotates clockwise
+    labels = labels[::-1]
+    percentages = percentages[::-1]
+
+    # Calculate the legend labels
+    label_text = [f"{labels[i]} ({percentages[i]:.1f}%)" for i in range(len(labels))]
+
+    # Do not render percentages below this threshold
+    threshold_percentage = 3
+
+    # Create the pie chart
+    plt.figure(figsize=(12, 10))
+    wedges, _, _ = plt.pie(
+        percentages,
+        autopct='',
+        startangle=90,
+        colors=wedge_colors,
+        wedgeprops=dict(width=0.5, edgecolor='#ddd')
+    )
+
+    # Render the legend
+    plt.legend(
+        wedges, label_text, title="Days", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1),
+        fontsize=10, title_fontsize=12
+    )
+
+    # Add day labels inside the wedges
+    for i, wedge in enumerate(wedges):
+        # If the percentage is below the threshold, don't render the label
+        if percentages[i] < threshold_percentage:
+            continue
+
+        # Calculate the mid-point of the wedge, then get position for the label
+        angle = (wedge.theta2 + wedge.theta1) / 2
+        x = np.cos(np.radians(angle)) * 0.75
+        y = np.sin(np.radians(angle)) * 0.75
+
+        # Adjust rotation to keep text readable
+        rotation = angle if angle - 90 >= 180 else angle - 180
+        plt.text(
+            x, y, label_text[i], color=np.array([0, 0, 0, 0.3]), weight="bold", rotation=rotation,
+            ha="center", va="center", rotation_mode="anchor"
+        )
+
+    # Title
+    plt.title('Day-wise Percentage Distribution', fontsize=16, color='#000', weight='bold')
+
+    # Save the graph to a file
+    plt.tight_layout()
+    plt.savefig("executionTimesPie.png")
+    plt.close()
+    print("Pie chart saved as 'executionTimesPie.png'.")
+
+
+def main(iterations=100):
+    # First, compile the Rust projects
+    days = 25
+    print("Compiling Rust projects...")
+    for day in range(1, days + 1):
+        compile_rust_project(day)
+
+    start_time = time.time()
+
+    print("Processing days...")
+    part1_times = []
+    part2_times = []
+    part1_results = []
+    part2_results = []
+
+    # Run each day several times and store the results
+    for day in range(1, days + 1):
+        p1_times, p2_times, p1_result, p2_result = process_day(day, iterations)
+        part1_times.append(p1_times)
+        part2_times.append(p2_times)
+        part1_results.append(p1_result)
+        part2_results.append(p2_result)
+    end_time = time.time()
+
+    # Calculate the medians of the cleaned data
+    part1_medians = [np.median(item) for item in part1_times]
+    part2_medians = [np.median(item) for item in part2_times]
+    total_median = sum(part1_medians) + sum(part2_medians)
+
+    # Print the results
+    for day in range(0, days):
+        print(
+            f"| [Day {day + 1}](./day{day + 1}/src/main.rs) | {format_time(part1_medians[day])} | {format_time(part2_medians[day])} |")
+    print(f"Benchmarking process took {end_time - start_time:.2f} seconds.")
+    print(f"Running each day once took {total_median:.2f} seconds.")
+
+    print()
+
+    generate_results_file(days, part1_results, part2_results)
+    generate_box_plot(days, part1_times, part2_times)
+    generate_bar_plot(days, part1_medians, part2_medians)
+    generate_pie_chart(days, part1_medians, part2_medians)
 
 
 main()
