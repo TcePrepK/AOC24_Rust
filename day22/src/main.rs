@@ -1,5 +1,16 @@
+//! --- Day 22: Monkey Market ---
+//! https://adventofcode.com/2024/day/22
+//!
+//! This solution focuses on using threads to speed up the computation.
+//! The most simplistic solution does require about two million iterations to finish.
+//!
+//! For part two,
+//! we can assume differences as base 19 and hash the four differences into a single number.
+//! Additional information about this solution can be found in the module-level documentation.
+
 use rayon::prelude::*;
-use utils::test_solutions;
+use std::sync::Mutex;
+use utils::{activate_all_threads, test_solutions};
 
 fn main() {
     test_solutions(22, &first_part, Some(37327623), &second_part, Some(24));
@@ -7,7 +18,7 @@ fn main() {
 
 /* ------------------- Helpers ------------------- */
 
-/// Parses and turns the given input into a vector of numbers
+/// Parses and turns the given input into a vector of numbers.
 fn get_numbers(input: &str) -> Vec<u32> {
     input
         .lines()
@@ -15,6 +26,8 @@ fn get_numbers(input: &str) -> Vec<u32> {
         .collect::<Vec<u32>>()
 }
 
+/// Calculates the next random number using the XOR-Shift algorithm.
+/// This is used to generate the random numbers for today's challenge.
 fn get_next(num: u32) -> u32 {
     let mut num = num;
     num ^= num << 6;
@@ -25,14 +38,11 @@ fn get_next(num: u32) -> u32 {
     num
 }
 
-/// Calculates the sequence of numbers while putting the difference sequence of 4 into the cache...
-/// Annoying day
-fn cache_sequence(
-    bool_cache: &mut [bool; 130321],
-    number_cache: &mut [u32; 130321],
-    num: u32,
-    highest_number: &mut u32,
-) {
+/// For each number, calculates the sequence of numbers while putting the difference sequence of 4 into the cache.
+/// Hashes the sequence of four numbers into a single number and stores it in the cache instead of HashMap.
+/// For each difference, maps [-9, 9] to [0, 18] then uses base 19 to base 10 conversion.
+/// Seen cache is there to avoid caching the same sequence twice.
+fn cache_sequence(seen_cache: &mut [bool; 130321], number_cache: &mut [u32; 130321], num: u32) {
     let num_0 = num; // 123456
     let num_1 = get_next(num_0); // 15887950
     let num_2 = get_next(num_1); // 16495136
@@ -58,15 +68,11 @@ fn cache_sequence(
         diff_2 = diff_3;
 
         // If the hash id is not already in the current input cache, add it
-        if bool_cache[hash_id] {
+        if seen_cache[hash_id] {
             continue;
         }
-        bool_cache[hash_id] = true;
+        seen_cache[hash_id] = true;
         number_cache[hash_id] += secret;
-
-        if number_cache[hash_id] > *highest_number {
-            *highest_number = number_cache[hash_id];
-        }
     }
 }
 
@@ -74,18 +80,20 @@ fn cache_sequence(
 
 fn first_part(input: &str) -> u64 {
     let numbers = get_numbers(input);
-    numbers
-        .par_iter()
-        .map(|&number| {
-            let mut num = number;
-            for _ in 0..2000 {
-                num ^= num << 6;
+    activate_all_threads(numbers)
+        .map(|(_, numbers)| {
+            let mut total = 0;
+            for mut num in numbers {
+                for _ in 0..2000 {
+                    num ^= num << 6;
+                    num &= 0xffffff;
+                    num ^= num >> 5;
+                    num ^= num << 11;
+                }
                 num &= 0xffffff;
-                num ^= num >> 5;
-                num ^= num << 11;
-                num &= 0xffffff;
+                total += num as u64;
             }
-            num as u64
+            total
         })
         .sum::<u64>()
 }
@@ -93,12 +101,26 @@ fn first_part(input: &str) -> u64 {
 fn second_part(input: &str) -> u32 {
     let numbers = get_numbers(input);
 
-    let highest_number = &mut 0;
-    let mut number_cache = [0; 130321];
-    numbers.iter().for_each(|&number| {
-        let mut bool_cache = [false; 130321];
-        cache_sequence(&mut bool_cache, &mut number_cache, number, highest_number);
+    let mutex_highest = Mutex::new(0);
+    let mutex_cache = Mutex::new([0; 130321]);
+    activate_all_threads(numbers).for_each(|(_, numbers)| {
+        let mut number_cache = [0; 130321];
+
+        for number in numbers {
+            let mut seen = [false; 130321];
+            cache_sequence(&mut seen, &mut number_cache, number);
+        }
+
+        let mut cache = mutex_cache.lock().unwrap();
+        let mut highest = mutex_highest.lock().unwrap();
+        for i in 0..130321 {
+            cache[i] += number_cache[i];
+            if cache[i] > *highest {
+                *highest = cache[i];
+            }
+        }
     });
 
-    *number_cache.iter().max().unwrap()
+    let result = mutex_highest.lock().unwrap();
+    *result
 }
