@@ -1,4 +1,3 @@
-import bisect
 import re
 import subprocess
 import time
@@ -69,7 +68,7 @@ def compile_rust_project(day_input):
 def run_rust_binary(day_input):
     try:
         result = subprocess.run(
-            [f"target/release/day{day_input}"],
+            [f"target/release/day{day_input}", "--benchmark=100"],
             cwd="./",
             capture_output=True,
             text=True,
@@ -104,28 +103,6 @@ def remove_outliers(data):
     return [x for x in data if lower_bound <= x <= upper_bound]
 
 
-# Function to process a day's benchmarking results
-def process_day(day, iterations):
-    part1_times = []
-    part2_times = []
-
-    p1_result = ""
-    p2_result = ""
-
-    # Run the Rust binary several times
-    for _ in range(iterations):
-        p1_time, p2_time, p1_result, p2_result = run_rust_binary(day)
-        if p1_time is not None and p2_time is not None:
-            bisect.insort(part1_times, p1_time)
-            bisect.insort(part2_times, p2_time)
-
-    # Remove outliers (twice)
-    part1_times_clean = remove_outliers(part1_times)
-    part2_times_clean = remove_outliers(part2_times)
-
-    return part1_times_clean, part2_times_clean, p1_result, p2_result
-
-
 # Generates the `results` file for storing and comparing results
 def generate_results_file(days, part1_results, part2_results):
     # Open (or create) a file in the writing mode ('w')
@@ -135,52 +112,6 @@ def generate_results_file(days, part1_results, part2_results):
             file.write(f" |> {part1_results[day]}\n")
             file.write(f" |> {part2_results[day]}\n")
     print("Results saved as 'results.txt'.")
-
-
-# Generates the blox plot image for the results
-def generate_box_plot(days, part1_times, part2_times):
-    fig, axes = plt.subplots(2, days, figsize=(days * 1.2, 5), sharey=False)
-    for day in range(0, days):
-        # Calculate the medians of the data
-        part1_med = np.median(part1_times[day])
-        part2_med = np.median(part2_times[day])
-
-        # Determine the appropriate unit and scale
-        time_unit, scale = get_time_unit_and_scale(max(part1_med, part2_med))
-        part1_scaled = [t * scale for t in part1_times[day]]
-        part2_scaled = [t * scale for t in part2_times[day]]
-
-        # Plot Part 1
-        ax1 = axes[0, day]
-        ax1.boxplot(
-            [part1_scaled],
-            patch_artist=True,
-            boxprops=dict(facecolor="lightblue", color="blue"),
-            medianprops=dict(color="red", linewidth=2),
-            whiskerprops=dict(color="blue"),
-            capprops=dict(color="blue"),
-        )
-        ax1.set_title(f"Day {day} ({time_unit})", fontsize=10)
-        ax1.set_xticks([])
-
-        # Plot Part 2
-        ax2 = axes[1, day]
-        ax2.boxplot(
-            [part2_scaled],
-            patch_artist=True,
-            boxprops=dict(facecolor="lightgreen", color="green"),
-            medianprops=dict(color="darkred", linewidth=2),
-            whiskerprops=dict(color="green"),
-            capprops=dict(color="green"),
-        )
-        ax2.set_xticks([])
-
-    # General title and finishing touches
-    fig.suptitle("Runtimes Across Days (Part 1 and Part 2)", fontsize=18, fontweight="bold")
-    plt.tight_layout()
-    plt.savefig("executionTimesBox.png")
-    plt.close()
-    print("Plots saved as 'executionTimesBox.png'.")
 
 
 # Generates the bar plot image for the results
@@ -214,17 +145,20 @@ def generate_bar_plot(days, part1_medians, part2_medians):
     ax.yaxis.grid(True, color='#ccc')
     ax.xaxis.grid(False)
 
+    r = fig.canvas.get_renderer()
+
     def autolabel(rects, labels, color):
         """Attach a text label above each bar in *rects*, displaying its height."""
         for i in range(len(rects)):
             rect = rects[i]
             label = labels[i]
-            height = rect.get_height()
+            height = rect.get_window_extent(r).height
+            time_height = rect.get_height()
 
-            minimum_height = 12
-            rotation = 0 if height < minimum_height else 90
-            font_size = 8 if height < minimum_height else 12
-            y_origin = height if height < minimum_height else height / 2
+            big_height = len(label) * 12
+            rotation = 0 if big_height > height else 90
+            font_size = 8 if big_height > height else 12
+            y_origin = time_height if big_height > height else time_height / 2
             ax.annotate(format(label),
                         xy=(rect.get_x() + rect.get_width() / 2, y_origin),
                         xytext=(0, 3),  # 3 points vertical offset
@@ -311,7 +245,7 @@ def generate_pie_chart(days, part1_medians, part2_medians):
     print("Pie chart saved as 'executionTimesPie.png'.")
 
 
-def main(iterations=100):
+def main():
     # First, compile the Rust projects
     days = 25
     print("Compiling Rust projects...")
@@ -321,23 +255,21 @@ def main(iterations=100):
     start_time = time.time()
 
     print("Processing days...")
-    part1_times = []
-    part2_times = []
+    part1_medians = []
+    part2_medians = []
     part1_results = []
     part2_results = []
 
     # Run each day several times and store the results
     for day in range(1, days + 1):
-        p1_times, p2_times, p1_result, p2_result = process_day(day, iterations)
-        part1_times.append(p1_times)
-        part2_times.append(p2_times)
+        p1_times, p2_times, p1_result, p2_result = run_rust_binary(day)
+        part1_medians.append(p1_times)
+        part2_medians.append(p2_times)
         part1_results.append(p1_result)
         part2_results.append(p2_result)
     end_time = time.time()
 
     # Calculate the medians of the cleaned data
-    part1_medians = [np.median(item) for item in part1_times]
-    part2_medians = [np.median(item) for item in part2_times]
     total_median = sum(part1_medians) + sum(part2_medians)
 
     # Print the results
@@ -350,7 +282,6 @@ def main(iterations=100):
     print()
 
     generate_results_file(days, part1_results, part2_results)
-    generate_box_plot(days, part1_times, part2_times)
     generate_bar_plot(days, part1_medians, part2_medians)
     generate_pie_chart(days, part1_medians, part2_medians)
 
