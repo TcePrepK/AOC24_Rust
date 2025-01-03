@@ -68,7 +68,7 @@ def compile_rust_project(day_input):
 def run_rust_binary(day_input):
     try:
         result = subprocess.run(
-            [f"target/release/day{day_input}", "--benchmark=100"],
+            [f"target/release/day{day_input}", "benchmark=100"],
             cwd="./",
             capture_output=True,
             text=True,

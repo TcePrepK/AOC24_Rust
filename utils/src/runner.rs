@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use std::hint::black_box;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use std::{env, fs};
 
 #[inline]
@@ -27,6 +27,36 @@ pub fn get_input(opt_day: Option<u8>) -> String {
     }
 
     result
+}
+
+pub fn benchmark_solution<T: PartialEq + Debug>(
+    func: &dyn Fn(&str) -> T,
+    input: &str,
+    iteration_count: u32,
+) -> Duration {
+    let mut times = Vec::with_capacity(iteration_count as usize);
+    for _ in 0..iteration_count {
+        let bench_start_time = Instant::now();
+        let _ = black_box(func(&input));
+        let bench_time = bench_start_time.elapsed();
+        times.push(bench_time.as_secs_f32());
+    }
+
+    times.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+
+    let q1 = times[times.len() / 4];
+    let q3 = times[3 * times.len() / 4];
+    let iqr = q3 - q1;
+    let lower_bound = q1 - 1.5 * iqr;
+    let upper_bound = q3 + 1.5 * iqr;
+
+    let cleaned = times
+        .iter()
+        .cloned()
+        .filter(|&x| x >= lower_bound && x <= upper_bound)
+        .collect::<Vec<f32>>();
+
+    Duration::from_secs_f32(cleaned[cleaned.len() / 2])
 }
 
 #[inline]
@@ -60,7 +90,7 @@ pub fn test_solutions<T: PartialEq + Debug, K: PartialEq + Debug>(
     let env_values = env::args().collect::<Vec<String>>();
     let benchmark = env_values
         .get(1)
-        .is_some_and(|x| x.as_str().starts_with("--benchmark="));
+        .is_some_and(|x| x.as_str().starts_with("benchmark="));
     let iteration_count = env_values
         .get(1)
         .map(|x| x.as_str().split_once("=").unwrap().1)
@@ -73,17 +103,12 @@ pub fn test_solutions<T: PartialEq + Debug, K: PartialEq + Debug>(
         let result = function_one(&input);
         let initial_time = initial_start_time.elapsed();
 
-        if benchmark {
-            let bench_start_time = Instant::now();
-            for _ in 0..iteration_count {
-                let result = function_one(&input);
-                black_box(result);
-            }
-            let bench_time = bench_start_time.elapsed() / iteration_count;
-            println!("Part-1 ( {:?} ) - {:?} ", result, bench_time);
+        let time = if benchmark {
+            benchmark_solution(&function_one, &input, iteration_count)
         } else {
-            println!("Part-1 ( {:?} ) - {:?} ", result, initial_time);
-        }
+            initial_time
+        };
+        println!("Part-1 ( {:?} ) - {:?} ", result, time);
     } else {
         println!("Part One Wrong");
     }
@@ -93,17 +118,12 @@ pub fn test_solutions<T: PartialEq + Debug, K: PartialEq + Debug>(
         let result = function_two(&input);
         let initial_time = initial_start_time.elapsed();
 
-        if benchmark {
-            let bench_start_time = Instant::now();
-            for _ in 0..iteration_count {
-                let result = function_two(&input);
-                black_box(result);
-            }
-            let bench_time = bench_start_time.elapsed() / iteration_count;
-            println!("Part-2 ( {:?} ) - {:?}", result, bench_time);
+        let time = if benchmark {
+            benchmark_solution(&function_two, &input, iteration_count)
         } else {
-            println!("Part-2 ( {:?} ) - {:?}", result, initial_time);
-        }
+            initial_time
+        };
+        println!("Part-2 ( {:?} ) - {:?} ", result, time);
     } else {
         println!("Part Two Wrong");
     }
