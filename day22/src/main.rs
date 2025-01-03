@@ -3,14 +3,21 @@
 //!
 //! This solution focuses on using threads to speed up the computation.
 //! The most simplistic solution does require about two million iterations to finish.
-//!
-//! For part two,
-//! we can assume differences as base 19 and hash the four differences into a single number.
 //! Additional information about this solution can be found in the module-level documentation.
+//!
+//! - Part One -
+//! The promise is straightforward, get the 2000th random number using the XOR-Shift algorithm.
+//! We can get faster runtimes by using threads and SIMD instructions.
+//! We create chunks of size 8, run all those 8 at the same time and run chunks in parallel.
+//!
+//! - Part Two -
+//! We can assume differences as base 19 and hash the four differences into a single number.
+//! We can get faster runtimes by using threads once again.
 
 use rayon::prelude::*;
 use std::sync::Mutex;
 use utils::{activate_all_threads, test_solutions};
+use wide::u32x8;
 
 fn main() {
     test_solutions(22, &first_part, Some(37327623), &second_part, Some(24));
@@ -79,21 +86,31 @@ fn cache_sequence(seen_cache: &mut [bool; 130321], number_cache: &mut [u32; 1303
 /* ------------------- Solutions ------------------- */
 
 fn first_part(input: &str) -> u64 {
+    // Activate all threads on chunks of size 8
     let numbers = get_numbers(input);
-    activate_all_threads(numbers)
+    activate_all_threads(numbers, Some(8))
         .map(|(_, numbers)| {
-            let mut total = 0;
-            for mut num in numbers {
-                for _ in 0..2000 {
-                    num ^= num << 6;
-                    num &= 0xffffff;
-                    num ^= num >> 5;
-                    num ^= num << 11;
-                }
-                num &= 0xffffff;
-                total += num as u64;
+            // We create an u32x8 using the chunk. Chunk can have less than 8 elements.
+            let mut array = [0; 8];
+            for i in 0..8.min(numbers.len()) {
+                array[i] = numbers[i];
             }
-            total
+
+            let mut num = u32x8::new(array);
+            let mask = u32x8::splat(0xffffff);
+
+            // We run the XOR-Shift algorithm 2000 times
+            for _ in 0..2000 {
+                num ^= num << 6;
+                num &= mask;
+                num ^= num >> 5;
+                num ^= num << 11;
+            }
+            num &= mask;
+
+            // We unbundle the u32x8 into an array and sum the results
+            let results = num.to_array();
+            results.iter().sum::<u32>() as u64
         })
         .sum::<u64>()
 }
@@ -103,7 +120,7 @@ fn second_part(input: &str) -> u32 {
 
     let mutex_highest = Mutex::new(0);
     let mutex_cache = Mutex::new([0; 130321]);
-    activate_all_threads(numbers).for_each(|(_, numbers)| {
+    activate_all_threads(numbers, None).for_each(|(_, numbers)| {
         let mut number_cache = [0; 130321];
 
         for number in numbers {
