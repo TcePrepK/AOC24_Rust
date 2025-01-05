@@ -2,7 +2,7 @@
 //!
 //! This module provides a `Point` struct and various constants and methods for working with points.
 //! The `Point` struct is a simple struct that represents a vector in two-dimensional space.
-//! `Point` implements the `Add` and `Sub` traits, allowing you to add and subtract points.
+//! `Point` implements some arithmetic operations, allowing you to add, subtract, multiply, divide, etc.
 //! Additional information about the `Point` struct can be found in the module-level documentation.
 
 use std::ops::*;
