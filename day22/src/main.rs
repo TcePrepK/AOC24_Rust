@@ -16,7 +16,7 @@
 
 use rayon::prelude::*;
 use std::sync::Mutex;
-use utils::{activate_all_threads, test_solutions};
+use utils::test_solutions;
 use wide::u32x8;
 
 fn main() {
@@ -88,8 +88,9 @@ fn cache_sequence(seen_cache: &mut [bool; 130321], number_cache: &mut [u32; 1303
 fn first_part(input: &str) -> u64 {
     // Activate all threads on chunks of size 8
     let numbers = get_numbers(input);
-    activate_all_threads(numbers, Some(8))
-        .map(|(_, numbers)| {
+    numbers
+        .par_chunks(8)
+        .map(|numbers| {
             // We create an u32x8 using the chunk. Chunk can have less than 8 elements.
             let mut array = [0; 8];
             for i in 0..8.min(numbers.len()) {
@@ -120,12 +121,12 @@ fn second_part(input: &str) -> u32 {
 
     let mutex_highest = Mutex::new(0);
     let mutex_cache = Mutex::new([0; 130321]);
-    activate_all_threads(numbers, None).for_each(|(_, numbers)| {
+    numbers.par_chunks(20).for_each(|numbers| {
         let mut number_cache = [0; 130321];
 
         for number in numbers {
             let mut seen = [false; 130321];
-            cache_sequence(&mut seen, &mut number_cache, number);
+            cache_sequence(&mut seen, &mut number_cache, *number);
         }
 
         let mut cache = mutex_cache.lock().unwrap();
