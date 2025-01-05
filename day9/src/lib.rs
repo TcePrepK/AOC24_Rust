@@ -16,7 +16,7 @@
 
 /* ------------------- Solutions ------------------- */
 
-pub fn part1<const TEST: bool>(memory: &mut [u8]) -> u64 {
+pub fn part1(memory: &mut [u8]) -> u64 {
     let mut result = 0;
 
     // [`left_position`] is the empty position in the expanded memory.
@@ -77,7 +77,7 @@ pub fn part1<const TEST: bool>(memory: &mut [u8]) -> u64 {
 
 const SIZE_TO_SUM: [u64; 10] = [0, 0, 1, 3, 6, 10, 15, 21, 28, 36];
 
-pub fn part2<const TEST: bool>(memory: &mut [u8]) -> u64 {
+pub fn part2(memory: &mut [u8]) -> u64 {
     let mut indices_of_spaces: Vec<u32> = Vec::with_capacity(memory.len() / 2);
     let mut earliest_space_for_size = [memory.len(); 10];
 
