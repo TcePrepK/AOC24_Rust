@@ -44,6 +44,23 @@ pub fn get_example(opt_day: Option<u8>) -> String {
     result
 }
 
+#[inline]
+pub fn test_example_string<T: PartialEq + Debug + Copy>(
+    day: u8,
+    function_one: &dyn Fn(&str) -> T,
+    expected_value: Option<T>,
+) -> (T, Option<T>, bool) {
+    let mut input = get_example(Some(day));
+    if input.is_empty() {
+        input = get_example(None);
+    }
+
+    let result = function_one(&input);
+    let is_correct = !expected_value.is_some_and(|v| result != v);
+    (result, expected_value, is_correct)
+}
+
+#[inline]
 pub fn test_example_bytes<T: PartialEq + Debug + Copy>(
     day: u8,
     function_one: &dyn Fn(&mut [u8]) -> T,
