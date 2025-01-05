@@ -1,10 +1,8 @@
 import re
 import subprocess
-import time
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import ticker
+from matplotlib import pyplot as plt, ticker
 
 
 # Function to parse the time value from the Rust output
@@ -40,51 +38,33 @@ def format_time(seconds):
         return f"{seconds:.3f}s"
 
 
-def get_time_unit_and_scale(time):
-    if time < 1e-9:
-        return "ps", 1e12
-    elif time < 1e-6:
-        return "ns", 1e9
-    elif time < 1e-3:
-        return "µs", 1e6
-    elif time < 1:
-        return "ms", 1e3
+# Function to format the change in a human-readable format
+def format_change(change):
+    if change > 0:
+        return f"(⬆ {change:.2f}%)"
     else:
-        return "s", 1
+        return f"(⬇ {abs(change):.2f}%)"
 
 
-# Function to compile the Rust project
-def compile_rust_project(day_input):
-    project_path = f"day{day_input}/src"
+# Benchmarks the day and returns the times calculated via Criterion
+def run_bench(day_input):
     try:
-        subprocess.run(
-            ["cargo", "build", "--color=always", "--release"],
-            cwd=project_path, check=True)
-    except subprocess.CalledProcessError:
-        print(f"Failed to compile project for day {day_input}")
-
-
-# Function to run the Rust binary and parse its output
-def run_rust_binary(day_input):
-    try:
+        print("Benchmarking process might take a while...")
         result = subprocess.run(
-            [f"target/release/day{day_input}", "benchmark=100"],
-            cwd="./",
-            capture_output=True,
-            text=True,
-            check=True
-        )
+            ["cargo", "bench", "-p", f"day{day_input}"],
+            cwd="./", capture_output=True, text=True, check=True)
+        output_text = result.stdout
 
-        output = result.stdout
-        search_1 = re.search(r"Part-1 \( (.*?) \) - ([\d.]+[a-zµ]*)", output)
-        search_2 = re.search(r"Part-2 \( (.*?) \) - ([\d.]+[a-zµ]*)", output)
+        times = []
+        for part in range(1, 3):
+            part_regex = fr"Day{day_input}/{part}\s+(.*)\s+(.*)"
+            time_regex = r"time:\s+\[.*?\s([\d.]+ [a-zµ]*)\s.*?\]"
 
-        part1_result = search_1.group(1)
-        part2_result = search_2.group(1)
-        part1_time = parse_time(search_1.group(2))
-        part2_time = parse_time(search_2.group(2))
+            parts = re.search(part_regex, output_text, re.MULTILINE)
+            time_text = parts.group(1)
+            times.append(parse_time(re.search(time_regex, time_text).group(1).replace(" ", "")))
 
-        return part1_time, part2_time, part1_result, part2_result
+        return times[0], times[1]
     except subprocess.CalledProcessError as e:
         print(f"Error running binary:\n{e.stderr}")
         return None, None
@@ -93,25 +73,19 @@ def run_rust_binary(day_input):
         return None, None
 
 
-# Function to clean data by removing outliers
-def remove_outliers(data):
-    q1 = np.percentile(data, 25)
-    q3 = np.percentile(data, 75)
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
-    return [x for x in data if lower_bound <= x <= upper_bound]
+# Gets the previously recorded data from the README.md file
+def get_previous_data():
+    day_regex = fr"\|\s+\[Day.*\].*\|\s+([\d.]+[a-zµ]*).*\|\s+([\d.]+[a-zµ]*).*\|"
+    with open("README.md") as f:
+        text = f.read()
+        search = re.findall(day_regex, text, re.MULTILINE)
 
-
-# Generates the `results` file for storing and comparing results
-def generate_results_file(days, part1_results, part2_results):
-    # Open (or create) a file in the writing mode ('w')
-    with open("results.txt", "w") as file:
-        for day in range(0, days):
-            file.write(f"Day {day + 1}:\n")
-            file.write(f" |> {part1_results[day]}\n")
-            file.write(f" |> {part2_results[day]}\n")
-    print("Results saved as 'results.txt'.")
+        part1_times = []
+        part2_times = []
+        for group in search:
+            part1_times.append(parse_time(group[0]))
+            part2_times.append(parse_time(group[1]))
+        return part1_times, part2_times
 
 
 # Generates the bar plot image for the results
@@ -246,44 +220,50 @@ def generate_pie_chart(days, part1_medians, part2_medians):
 
 
 def main():
-    # First, compile the Rust projects
-    days = 25
-    print("Compiling Rust projects...")
-    for day in range(1, days + 1):
-        compile_rust_project(day)
+    day = int(input("Day: "))
 
-    start_time = time.time()
+    # Read the README.md and get every previous data
+    part1_times, part2_times = get_previous_data()
 
-    print("Processing days...")
-    part1_medians = []
-    part2_medians = []
-    part1_results = []
-    part2_results = []
+    # Compile and get the benchmark results for this day
+    cur_part1_time, cur_part2_time = run_bench(day)
 
-    # Run each day several times and store the results
-    for day in range(1, days + 1):
-        p1_times, p2_times, p1_result, p2_result = run_rust_binary(day)
-        part1_medians.append(p1_times)
-        part2_medians.append(p2_times)
-        part1_results.append(p1_result)
-        part2_results.append(p2_result)
-    end_time = time.time()
+    # Get the previous time data, then update it
+    prev_part1_time = part1_times[day - 1]
+    prev_part2_time = part2_times[day - 1]
+    part1_times[day - 1] = cur_part1_time
+    part2_times[day - 1] = cur_part2_time
 
-    # Calculate the medians of the cleaned data
-    total_median = sum(part1_medians) + sum(part2_medians)
+    # Calculate the change in time
+    part1_change = (cur_part1_time - prev_part1_time) / prev_part1_time * 100
+    part2_change = (cur_part2_time - prev_part2_time) / prev_part2_time * 100
 
-    # Print the results
-    for day in range(0, days):
-        print(
-            f"| [Day {day + 1}](./day{day + 1}/src/main.rs) | {format_time(part1_medians[day])} | {format_time(part2_medians[day])} |")
-    print(f"Benchmarking process took {end_time - start_time:.2f} seconds.")
-    print(f"Running each day once took {total_median:.2f} seconds.")
+    print(f" |> {format_time(cur_part1_time)} {format_change(part1_change)}")
+    print(f" |> {format_time(cur_part2_time)} {format_change(part2_change)}")
 
-    print()
+    write_to_readme = input("Write to README.md? (y/N): ")
+    if write_to_readme.lower() == "y":
+        print(f"Writing the changes to README.md!!!")
 
-    generate_results_file(days, part1_results, part2_results)
-    generate_bar_plot(days, part1_medians, part2_medians)
-    generate_pie_chart(days, part1_medians, part2_medians)
+        previous_data = open("README.md", "r").read()
+        previous_day_data = re.search(fr"\|\s+\[Day {day}].*(\|\s+[\d.]+[a-zµ]*.*\|\s+[\d.]+[a-zµ]*.*\|)",
+                                      previous_data,
+                                      re.MULTILINE).group(1)
+        new_day_data = f"| {format_time(cur_part1_time)} {format_change(part1_change)} | {format_time(cur_part2_time)} {format_change(part2_change)} |"
+
+        new_data = previous_data.replace(previous_day_data, new_day_data)
+        with open("README.md", "w") as f:
+            f.write(new_data)
+
+        print(f"Updated README.md")
+
+        print()
+        print("Creating the plots...")
+        days = 25
+        generate_bar_plot(days, part1_times, part2_times)
+        generate_pie_chart(days, part1_times, part2_times)
+    else:
+        print(f"Doing nothing...")
 
 
 main()

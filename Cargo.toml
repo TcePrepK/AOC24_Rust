@@ -31,5 +31,12 @@ members = [
     "utils",
 ]
 
+[profile.release]
+lto = true
+
+[profile.bench]
+lto = true
+debug = true
+
 [workspace.dependencies]
 utils = { path = "utils" }
