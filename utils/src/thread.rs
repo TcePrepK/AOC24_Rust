@@ -1,14 +1,8 @@
-use rayon::iter::{Chunks, Enumerate};
-use rayon::prelude::*;
-use rayon::vec::IntoIter;
-use std::thread::available_parallelism;
+use core_affinity::{get_core_ids, set_for_current};
 
 #[inline]
-pub fn activate_all_threads<T: Sync + Send>(
-    items: Vec<T>,
-    opt_chunk_size: Option<usize>,
-) -> Enumerate<Chunks<IntoIter<T>>> {
-    let threads = available_parallelism().unwrap().get();
-    let chunk_size = opt_chunk_size.unwrap_or(items.len().div_ceil(threads));
-    items.into_par_iter().chunks(chunk_size).enumerate()
+pub fn switch_to_performance_core() {
+    let core_ids = get_core_ids().expect("Failed to get core IDs");
+    let selected_core = core_ids.first().expect("Core ID out of range");
+    set_for_current(*selected_core);
 }
