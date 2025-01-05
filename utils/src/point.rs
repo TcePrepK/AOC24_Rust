@@ -5,7 +5,7 @@
 //! `Point` implements the `Add` and `Sub` traits, allowing you to add and subtract points.
 //! Additional information about the `Point` struct can be found in the module-level documentation.
 
-use std::ops::{Add, AddAssign, Sub, SubAssign};
+use std::ops::*;
 
 pub const RIGHT: Point = Point::new(1, 0);
 pub const BOTTOM: Point = Point::new(0, 1);
@@ -64,8 +64,8 @@ impl Point {
     }
 }
 
-/// Implements the `Add` and `Sub` traits for `Point`.
-/// This allows us to use the `+` and `-` operators with `Point` objects.
+/// Implements the basic arithmetic operations for `Point`.
+/// This allows us to use the basic operators with `Point` objects.
 /// For example,
 /// ```
 /// use utils::Point;
@@ -99,6 +99,46 @@ impl Sub for Point {
     }
 }
 
+impl<T> Mul<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    type Output = Self;
+
+    #[inline]
+    #[must_use]
+    fn mul(self, other: T) -> Self::Output {
+        Point::new(self.x * other.into(), self.y * other.into())
+    }
+}
+
+impl<T> Div<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    type Output = Self;
+
+    #[inline]
+    #[must_use]
+    fn div(self, other: T) -> Self::Output {
+        Point::new(self.x / other.into(), self.y / other.into())
+    }
+}
+
+impl<T> Rem<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    type Output = Self;
+
+    #[inline]
+    #[must_use]
+    fn rem(self, other: T) -> Self::Output {
+        Point::new(self.x % other.into(), self.y % other.into())
+    }
+}
+
+/// Implements the assignment arithmetic operations for `Point`.
 impl AddAssign for Point {
     #[inline]
     fn add_assign(&mut self, other: Self) {
@@ -110,5 +150,35 @@ impl SubAssign for Point {
     #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
+    }
+}
+
+impl<T> MulAssign<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    #[inline]
+    fn mul_assign(&mut self, other: T) {
+        *self = *self * other;
+    }
+}
+
+impl<T> DivAssign<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    #[inline]
+    fn div_assign(&mut self, other: T) {
+        *self = *self / other;
+    }
+}
+
+impl<T> RemAssign<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    #[inline]
+    fn rem_assign(&mut self, other: T) {
+        *self = *self % other;
     }
 }
