@@ -33,7 +33,7 @@ Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 | [Day 11](./day11/src/main.rs) |      385.989µs      |       5.571ms       |
 | [Day 12](./day12/src/main.rs) |       1.232ms       |       1.688ms       |
 | [Day 13](./day13/src/main.rs) |      174.226µs      |      332.396µs      |
-| [Day 14](./day14/src/main.rs) |      185.673µs      |      14.634ms       |
+| [Day 14](./day14/src/lib.rs)  | 2.360µs (⬇ 98.73%)  | 3.212µs (⬇ 99.98%)  |
 | [Day 15](./day15/src/main.rs) |      243.289µs      |      364.136µs      |
 | [Day 16](./day16/src/main.rs) |      564.812µs      |       5.921ms       |
 | [Day 17](./day17/src/main.rs) |       3.950µs       |      16.535µs       |
@@ -45,6 +45,7 @@ Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 | [Day 23](./day23/src/main.rs) |       1.464ms       |       1.091ms       |
 | [Day 24](./day24/src/main.rs) |      50.569µs       |      127.661µs      |
 | [Day 25](./day25/src/main.rs) |      346.784µs      |       0.000ns       |
+|       Total (80.687ms)        |      14.814ms       |      65.873ms       |
 
 ## License
 

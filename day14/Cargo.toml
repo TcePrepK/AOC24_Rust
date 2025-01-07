@@ -3,5 +3,15 @@ name = "day14"
 version = "0.1.0"
 edition = "2021"
 
+[[bench]]
+name = "bench"
+harness = false
+
+[[bin]]
+name = "day14"
+path = "benches/main.rs"
+
 [dependencies]
 utils = { path = "../utils" }
+criterion = "0.5.1"
+rayon = "1.10.0"
