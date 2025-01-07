@@ -55,14 +55,9 @@ def run_bench(day_input):
             cwd="./", capture_output=True, text=True, check=True)
         output_text = result.stdout
 
-        times = []
-        for part in range(1, 3):
-            part_regex = fr"Day{day_input}/{part}\s+(.*)\s+(.*)"
-            time_regex = r"time:\s+\[.*?\s([\d.]+ [a-zµ]*)\s.*?\]"
-
-            parts = re.search(part_regex, output_text, re.MULTILINE)
-            time_text = parts.group(1)
-            times.append(parse_time(re.search(time_regex, time_text).group(1).replace(" ", "")))
+        time_regex = r"time:\s+\[.*?\s([\d.]+ [a-zµ]*)\s.*?\]"
+        both_parts = re.findall(time_regex, output_text, re.MULTILINE)
+        times = [parse_time(part.replace(" ", "")) for part in both_parts]
 
         return times[0], times[1]
     except subprocess.CalledProcessError as e:
@@ -234,26 +229,41 @@ def main():
     part1_times[day - 1] = cur_part1_time
     part2_times[day - 1] = cur_part2_time
 
+    # Calculate the total time
+    part1_total = sum(part1_times)
+    part2_total = sum(part2_times)
+
     # Calculate the change in time
     part1_change = (cur_part1_time - prev_part1_time) / prev_part1_time * 100
     part2_change = (cur_part2_time - prev_part2_time) / prev_part2_time * 100
 
     print(f" |> {format_time(cur_part1_time)} {format_change(part1_change)}")
     print(f" |> {format_time(cur_part2_time)} {format_change(part2_change)}")
+    print(f"Total Time:")
+    print(f" |> {format_time(part1_total)} | {format_time(part2_total)}")
 
     write_to_readme = input("Write to README.md? (y/N): ")
     if write_to_readme.lower() == "y":
         print(f"Writing the changes to README.md!!!")
+        readme_data = open("README.md", "r").read()
 
-        previous_data = open("README.md", "r").read()
+        # Replace previous day data with new day data
         previous_day_data = re.search(fr"\|\s+\[Day {day}].*(\|\s+[\d.]+[a-zµ]*.*\|\s+[\d.]+[a-zµ]*.*\|)",
-                                      previous_data,
+                                      readme_data,
                                       re.MULTILINE).group(1)
         new_day_data = f"| {format_time(cur_part1_time)} {format_change(part1_change)} | {format_time(cur_part2_time)} {format_change(part2_change)} |"
+        readme_data = readme_data.replace(previous_day_data, new_day_data)
 
-        new_data = previous_data.replace(previous_day_data, new_day_data)
+        # Replace previous total time data with new total time data
+        prev_total_time = re.search(
+            r"\|\s+Total (\(.*\)\s+\|\s+[\d.]+[a-zµ]*.*\|\s+[\d.]+[a-zµ]*.*\|)",
+            readme_data,
+            re.MULTILINE).group(1)
+        new_total_time = f"({format_time(part1_total + part2_total)}) | {format_time(part1_total)} | {format_time(part2_total)} |"
+        readme_data = readme_data.replace(prev_total_time, new_total_time)
+
         with open("README.md", "w") as f:
-            f.write(new_data)
+            f.write(readme_data)
 
         print(f"Updated README.md")
 
