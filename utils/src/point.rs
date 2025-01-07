@@ -64,9 +64,10 @@ impl Point {
     }
 }
 
-/// Implements the basic arithmetic operations for `Point`.
-/// This allows us to use the basic operators with `Point` objects.
-/// For example,
+/// Implements point-based basic arithmetic operations for `Point`.
+///
+/// # Examples
+///
 /// ```
 /// use utils::Point;
 ///
@@ -76,8 +77,8 @@ impl Point {
 /// assert_eq!(p3, Point::new(4, 6));
 ///
 /// let mut p4 = Point::new(5, 6);
-/// p4 -= p2;
-/// assert_eq!(p4, Point::new(2, 2));
+/// let p5 = p4 % p2;
+/// assert_eq!(p5, Point::new(2, 2));
 /// ```
 impl Add for Point {
     type Output = Self;
@@ -96,6 +97,94 @@ impl Sub for Point {
     #[must_use]
     fn sub(self, other: Self) -> Self::Output {
         Point::new(self.x - other.x, self.y - other.y)
+    }
+}
+
+impl Rem for Point {
+    type Output = Self;
+
+    #[inline]
+    #[must_use]
+    fn rem(self, other: Self) -> Self::Output {
+        Point::new(self.x % other.x, self.y % other.y)
+    }
+}
+
+/// Implements point-based assignment arithmetic operations for `Point`.
+///
+/// # Examples
+///
+/// ```
+/// use utils::Point;
+///
+/// let mut p1 = Point::new(1, 2);
+/// let p2 = Point::new(3, 4);
+/// p1 += p2;
+/// assert_eq!(p1, Point::new(4, 6));
+///
+/// let mut p3 = Point::new(5, 6);
+/// p3 %= p2;
+/// assert_eq!(p3, Point::new(2, 2));
+/// ```
+impl AddAssign for Point {
+    #[inline]
+    fn add_assign(&mut self, other: Self) {
+        *self = *self + other;
+    }
+}
+
+impl SubAssign for Point {
+    #[inline]
+    fn sub_assign(&mut self, other: Self) {
+        *self = *self - other;
+    }
+}
+
+impl RemAssign for Point {
+    #[inline]
+    fn rem_assign(&mut self, other: Self) {
+        *self = *self % other;
+    }
+}
+
+/// Implements number-based basic arithmetic operations for `Point`.
+///
+/// # Examples
+///
+/// ```
+/// use utils::Point;
+///
+/// let p1 = Point::new(1, 2);
+/// let p2 = p1 + 3;
+/// assert_eq!(p2, Point::new(4, 5));
+///
+/// let p3 = Point::new(8, 6);
+/// let p4 = p3 / 2;
+/// assert_eq!(p4, Point::new(4, 3));
+/// ```
+impl<T> Add<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    type Output = Self;
+
+    #[inline]
+    #[must_use]
+    fn add(self, other: T) -> Self::Output {
+        Point::new(self.x + other.into(), self.y + other.into())
+    }
+}
+
+impl<T> Sub<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    type Output = Self;
+
+    #[inline]
+    #[must_use]
+    fn sub(self, other: T) -> Self::Output {
+        Point::new(self.x - other.into(), self.y - other.into())
     }
 }
 
@@ -138,28 +227,38 @@ where
     }
 }
 
-/// Implements the assignment arithmetic operations for `Point`.
-impl AddAssign for Point {
-    #[inline]
-    fn add_assign(&mut self, other: Self) {
-        *self = *self + other;
-    }
-}
-
-impl SubAssign for Point {
-    #[inline]
-    fn sub_assign(&mut self, other: Self) {
-        *self = *self - other;
-    }
-}
-
-impl<T> MulAssign<T> for Point
+/// Implements number-based assignment arithmetic operations for `Point`.
+///
+/// # Examples
+///
+/// ```
+/// use utils::Point;
+///
+/// let mut p1 = Point::new(1, 2);
+/// p1 += 3;
+/// assert_eq!(p1, Point::new(4, 5));
+///
+/// let mut p2 = Point::new(8, 6);
+/// p2 /= 2;
+/// assert_eq!(p2, Point::new(4, 3));
+/// ```
+impl<T> AddAssign<T> for Point
 where
     T: Copy + Into<i32>,
 {
     #[inline]
-    fn mul_assign(&mut self, other: T) {
-        *self = *self * other;
+    fn add_assign(&mut self, other: T) {
+        *self = *self + other;
+    }
+}
+
+impl<T> SubAssign<T> for Point
+where
+    T: Copy + Into<i32>,
+{
+    #[inline]
+    fn sub_assign(&mut self, other: T) {
+        *self = *self - other;
     }
 }
 
