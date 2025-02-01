@@ -25,7 +25,7 @@ Box Plot - [**executionTimesBox.png**](./executionTimesBox.png).
 |  [Day 3](./day3/src/main.rs)  |      201.526µs      |       4.412ms       |
 |  [Day 4](./day4/src/main.rs)  |      365.498µs      |      107.420µs      |
 |  [Day 5](./day5/src/main.rs)  |       3.748ms       |       7.403ms       |
-|  [Day 6](./day6/src/main.rs)  |      74.768µs       |      10.974ms       |
+|  [Day 6](./day6/src/lib.rs)   |      74.768µs       |      10.974ms       |
 |  [Day 7](./day7/src/main.rs)  |      918.669µs      |       3.324ms       |
 |  [Day 8](./day8/src/main.rs)  |      33.014µs       |      53.580µs       |
 |  [Day 9](./day9/src/lib.rs)   | 74.464µs (⬇ 86.97%) | 22.327µs (⬇ 99.82%) |

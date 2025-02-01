@@ -182,7 +182,7 @@ fn parse_input(
 
 /* ------------------- Solutions ------------------- */
 
-pub fn part1(input: &[u8]) -> u32 {
+pub fn part1(input: &mut [u8]) -> u32 {
     let mut quarter_vals: [u32; 4] = [0, 0, 0, 0];
 
     let mut pointer = input.as_ptr().wrapping_sub(1);
@@ -202,7 +202,7 @@ pub fn part1(input: &[u8]) -> u32 {
     quarter_vals[0] * quarter_vals[1] * quarter_vals[2] * quarter_vals[3]
 }
 
-pub fn part2<const TEST: bool>(input: &[u8]) -> u32 {
+pub fn part2<const TEST: bool>(input: &mut [u8]) -> u32 {
     if TEST {
         return 0;
     }

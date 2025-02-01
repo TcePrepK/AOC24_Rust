@@ -63,7 +63,7 @@ pub fn test_example_string<T: PartialEq + Debug + Copy>(
 #[inline]
 pub fn test_example_bytes<T: PartialEq + Debug + Copy>(
     day: u8,
-    function_one: &dyn Fn(&[u8]) -> T,
+    function_one: &dyn Fn(&mut [u8]) -> T,
     expected_value: Option<T>,
 ) -> (T, Option<T>, bool) {
     let mut input = get_example(Some(day));
@@ -141,8 +141,8 @@ pub fn test_both_parts_bytes<T: PartialEq + Debug, K: PartialEq + Debug>(
     day: u8,
     example_result_one: (T, Option<T>, bool),
     example_result_two: (K, Option<K>, bool),
-    function_one: &dyn Fn(&[u8]) -> T,
-    function_two: &dyn Fn(&[u8]) -> K,
+    function_one: &dyn Fn(&mut [u8]) -> T,
+    function_two: &dyn Fn(&mut [u8]) -> K,
 ) {
     println!("Day {}:", day);
 
@@ -152,8 +152,8 @@ pub fn test_both_parts_bytes<T: PartialEq + Debug, K: PartialEq + Debug>(
     }
 
     time_functions(
-        input.clone().as_bytes(),
-        input.clone().as_bytes(),
+        unsafe { input.clone().as_bytes_mut() },
+        unsafe { input.clone().as_bytes_mut() },
         example_result_one,
         example_result_two,
         function_one,
@@ -162,7 +162,7 @@ pub fn test_both_parts_bytes<T: PartialEq + Debug, K: PartialEq + Debug>(
 }
 
 #[inline]
-pub fn run_both_benchmarks<T: PartialEq + Debug, K: PartialEq + Debug>(
+pub fn run_both_benchmarks_string<T: PartialEq + Debug, K: PartialEq + Debug>(
     day: u8,
     c: &mut Criterion,
     part_one: &dyn Fn(&str) -> T,
@@ -180,8 +180,8 @@ pub fn run_both_benchmarks<T: PartialEq + Debug, K: PartialEq + Debug>(
 pub fn run_both_benchmarks_bytes<T: PartialEq + Debug, K: PartialEq + Debug>(
     day: u8,
     c: &mut Criterion,
-    part_one: &dyn Fn(&[u8]) -> T,
-    part_two: &dyn Fn(&[u8]) -> K,
+    part_one: &dyn Fn(&mut [u8]) -> T,
+    part_two: &dyn Fn(&mut [u8]) -> K,
 ) {
     let mut group = c.benchmark_group(format!("Day{day}"));
     group.measurement_time(Duration::new(10, 0));

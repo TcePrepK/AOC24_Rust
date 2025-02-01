@@ -359,7 +359,7 @@ dependencies = [
 name = "day6"
 version = "0.1.0"
 dependencies = [
- "ahash",
+ "criterion",
  "rayon",
  "utils",
 ]
